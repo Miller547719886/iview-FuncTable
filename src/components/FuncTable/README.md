@@ -1,7 +1,6 @@
-# iview-FuncTable
-基于iview框架的功能表格组件
+## 业务组件-功能表格
 
-目前支持的功能：表头筛选/查询/分页/批量操作/刷新
+目的是整合一套基于iview完全自动化的表格组件。
 
 ### 功能
 
@@ -35,10 +34,10 @@ export default {
       msg: '请求中。。。', // 这个不是必须的，只是为了展示回调的功能。。。
       pageConfig: { // 值为fasle则无分页功能。
         showSizer: true, // 配置iview中的shiw-sizer。
-        showElevator: true, // 配置iview中的shiw-elevator。
+        showElevator: true // 配置iview中的shiw-elevator。
         pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。
       },
-      columns: [...], // 必填，按照普通columns填写即可。
+      columns: [...] // 必填，按照普通columns填写即可。
       searchConfig: { // 值为fasle则无查询功能。
         placeholder: '请输入xxx', // 查询框占位符。
         key: 'name', // 查询请求依赖的参数。
