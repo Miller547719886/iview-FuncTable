@@ -5,13 +5,13 @@ const isDev = process.env.NODE_ENV === 'development'
 const successCode = 10000
 const http = axios.create({
   // change in mock mode
-  baseURL: ' http://10.95.38.32:5200/mock/5a0d51c073e6fc457433451f/example'
+  baseURL: 'https://www.easy-mock.com/mock/5a168608b38a3c5b4c7a7163/example'
 })
 
 // 配置拦截器与错误处理
 http.interceptors.response.use(function (response) {
   if (window._.get(response, 'data.code') !== successCode) {
-    isDev && console.error(response, '请求返回状态码不为10000')
+    isDev && console.error(response, `请求返回状态码不为${successCode}`)
     throw new Error('1')
   } else {
     return response.data.data
