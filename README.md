@@ -84,4 +84,22 @@ export default {
 
 3. 如何在父组件中实现数据请求？
 
-    只要修改fetchConfig中的任意配置即可。（因为组件中会深度监听该对象，任何修改都会触发请求。）
+    只要修改fetchConfig中的任意配置即可。（因为组件中会深度监听该对象，任何修改都会触发请求。）
+    
+### 演示
+
+#### 表格操作(分组与单项)
+
+![表格操作](https://raw.githubusercontent.com/Miller547719886/iview-FuncTable/master/gif/cz.gif)
+
+#### 表格分页/查询/刷新
+
+![表格操作](https://raw.githubusercontent.com/Miller547719886/iview-FuncTable/master/gif/fy_refresh.gif)
+
+#### 表格筛选(check模式)
+
+![表格操作](https://raw.githubusercontent.com/Miller547719886/iview-FuncTable/master/gif/sx_check.gif)
+
+#### 表格筛选(transfer模式)
+
+![表格操作](https://raw.githubusercontent.com/Miller547719886/iview-FuncTable/master/gif/sx_transfer.gif)
