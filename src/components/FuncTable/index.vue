@@ -5,9 +5,9 @@
       <!-- 批量操作组（slot） -->
       <div class="func-table-batch-operation f-l">
         <slot name="batch-operation">
-          <Button>添加</Button>
+          <!-- <Button>添加</Button>
           <Button>编辑</Button>
-          <Button>删除</Button>
+          <Button>删除</Button> -->
         </slot>
       </div>
       <div class="func-table-refresh f-l ml-5" v-show="refreshable">
@@ -35,7 +35,7 @@
           <Modal v-show="isTransferMode"
             v-model="modalTransfer.show"
             :title="modalTransfer.title"
-            width="710px"
+            width="720px"
             @on-ok="saveColumnsConfig">
             <CTransfer ref="CTransfer"
               :disabledSelections="disabledSelections"
@@ -467,7 +467,7 @@
 
       },
       triggerClick (v) {
-        let checkValue = window._.reject(this.isDisabled)(v)[0]
+        let checkValue = window._.reject(v, this.isDisabled)[0]
         let index = this.checkList.indexOf(checkValue)
         let label = this.$refs['check' + index][0].$el
         let input = label.querySelectorAll('input')[0]

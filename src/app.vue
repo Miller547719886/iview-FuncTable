@@ -95,20 +95,6 @@ export default {
                 return h('div', [
                     h('Button', {
                         props: {
-                            type: 'text',
-                            size: 'small'
-                        },
-                        style: {
-                            marginRight: '5px'
-                        },
-                        on: {
-                            click: () => {
-                                this.xt()
-                            }
-                        }
-                    }, '系统角色权限'),
-                    h('Button', {
-                        props: {
                         type: 'text',
                         size: 'small'
                         },
@@ -117,7 +103,7 @@ export default {
                         },
                         on: {
                         click: () => {
-                            this.bj()
+                            alert(`编辑项的id:${id}`)
                         }
                         }
                     }, '编辑'),
@@ -129,14 +115,14 @@ export default {
                         on: {
                         click: () => {
                             if(isActive == 1){
-                                this.qy(id, 0)
+                                alert(`禁用项的id:${id}`)
                             }
                             if(isActive == 0){
-                                this.qy(id, 1)
+                                alert(`启用项的id:${id}`)
                             }
                         }
                         }
-                    }, isActive == 1 ? '禁用':'开启'),
+                    }, isActive == 1 ? '禁用':'启用'),
                     h('Button', {
                         props: {
                         type: 'text',
@@ -144,7 +130,7 @@ export default {
                         },
                         on: {
                         click: () => {
-                            this.sc(id)
+                            alert(`删除项的id:${id}`)
                         }
                         }
                     }, '删除')
@@ -158,7 +144,7 @@ export default {
         maxlength: 20 // 查询框支持的最大长度。
       },
       filterConfig: { // 值为fasle则无筛选功能。
-        mode: 'transfer' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
+        mode: 'check' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
       },
       fetchConfig: {}, // 必填（初始化时为空对象，在load方法内填充配置）。
       ids: []
