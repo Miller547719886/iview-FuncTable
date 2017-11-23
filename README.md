@@ -74,7 +74,7 @@ export default {
 
     只要你使用iview组件库并且使用axios实现数据请求，然后：
 
-    * 配置好pageDataFormat.js的选项
+    * 配置好fetchDataFormat.js的选项
 
     就可以正常使用了。
 
