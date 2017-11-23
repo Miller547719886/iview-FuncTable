@@ -7,7 +7,12 @@
         :searchConfig="searchConfig"
         :filterConfig="filterConfig"
         @on-selection-change="getIds"
-        v-model="fetchConfig"></func-table>
+        v-model="fetchConfig">
+        <div slot="batch-operation">
+          <Button @click="handlerAdd">添加</Button>
+          <Button @click="handlerBatchDel">删除</Button>
+        </div>
+      </func-table>
   </div>
 </template>
 
@@ -166,6 +171,12 @@ export default {
     this.load() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
   },
   methods: {
+    handlerAdd () {
+      alert(`添加一条内容`)
+    },
+    handlerBatchDel () {
+      alert(`要删除的项id为：${ (this.ids.length ? this.ids : '--') }`)
+    },
     load () { // 通过改变http请求的配置(url,参数)自动触发组件内请求事件。
       this.fetchConfig = { // 请按照此格式配置！
         url: '/account', // 请求url。
