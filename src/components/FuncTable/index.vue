@@ -212,6 +212,8 @@
         data: [],
         spin: false,
         ids: [],
+        tableWidth: 0,
+        tableFixedWidth: 0,
         /* 分页相关 */
         size: 10,
         page: 1,
@@ -247,9 +249,20 @@
       // 获取当前表格对应的全部columns与targetKeys
     },
     mounted () {
+      this.calculateTableWidths()
       this.fillTableColumns()
     },
     methods: {
+      /* 获得table总宽度与fixed column宽度 */
+      calculateTableWidths () {
+        let el = this.$refs['table'].$el
+        this.tableWidth = parseFloat(dom.getStyle(el, 'width'))
+        this.tableFixedWidth = this.columns.filter((item, index, array) => {
+          return item.hasOwnProperty('fixed')
+        }).reduce((a, b) => {
+          return a + b.width
+        }, 0)
+      },
       /* ----- 分页相关 ----- */
       setPagePosition (pagePosition) {
         let _style
@@ -612,6 +625,32 @@
     watch: {
       selectedData (v) {
         this.emitSelectionChange(v)
+      },
+      filteredColumns (v) {
+        let filteredWidth = v.filter((item, index, array) => {
+          return !item.hasOwnProperty('fixed')
+        }).reduce((a, b) => {
+          return a + (b.width)
+        }, 0)
+        console.log(filteredWidth, this.tableWidth, this.tableFixedWidth)
+        if (filteredWidth < this.tableWidth - this.tableFixedWidth) {
+          v.map((item, index, array) => {
+            if (!item.hasOwnProperty('fixed')) {
+              item.deletedWidth = item.width
+              delete item.width
+            }
+          })
+          console.log(v, 'fixed')
+        } else {
+          v.map((item, index, array) => {
+            if ((!item.hasOwnProperty('fixed')) && item.hasOwnProperty('deletedWidth')) {
+              item.width = item.deletedWidth
+              delete item.deletedWidth
+            }
+          })
+          console.log(v, 'deletedWidth')
+        } 
+        this.$refs['table'].$forceUpdate()
       },
       // 分页相关
       'forceUpdateSign.flag' (v) {
