@@ -84,7 +84,7 @@
           :columns="filteredColumns"
           :id="id"
           :data="data"
-          @on-selection-change="emitSelectionChange"
+          @on-selection-change="setselectedData"
           @on-current-change="emitCurrentChange">
         </Table>
         <!-- 加载中 -->
@@ -208,6 +208,7 @@
     },
     data () {
       return {
+        selectedData: [],
         data: [],
         spin: false,
         ids: [],
@@ -306,6 +307,7 @@
         this.spin = !this.spin
       },
       refresh () {
+        this.resetSelectedData()
         this.$set(this.fetchConfig.params, 'page', 1)
       },
       deletePageAndSizeInConfig () {
@@ -372,6 +374,12 @@
             this.$Message.error(`请求错误；错误信息：${error}`)
           })
         }
+      },
+      resetSelectedData () {
+        this.selectedData = []
+      },
+      setselectedData (data) {
+        this.selectedData = data
       },
       /* 选中数据 */
       emitSelectionChange (data) {
@@ -603,6 +611,9 @@
       }
     },
     watch: {
+      selectedData (v) {
+        this.emitSelectionChange(v)
+      },
       // 分页相关
       'forceUpdateSign.flag' (v) {
         let VMPage = this.$refs['page']
