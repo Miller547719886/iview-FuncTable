@@ -43,17 +43,22 @@ export default {
             type: 'selection',
             width: 60,
             align: 'center',
+            fixed: 'left',
             filterDisable: 'before' // 前置默认选项(不受筛选控制)
         },
         {
             title: '用户名',
             key: 'account',
+            width: 120,
             render: (h, {row, column, index}) => {
                 return h('div', [
                 h('Button', {
                     props: {
                     type: 'text',
                     size: 'small'
+                    },
+                    style: {
+                        'paddingLeft': 0
                     },
                     on: {
                     click: () => {
@@ -66,22 +71,27 @@ export default {
         },
         {
             title: '用户昵称',
+            width: 120,
             key: 'name'
         },
         {
             title: '用户工号',
+            width: 120,
             key: 'id'
         },
         {
             title: '手机号',
+            width: 120,
             key: 'mobile'
         },
         {
             title: '审核状态',
+            width: 120,
             key: 'auditStatus'
         },
         {
             title: '是否启用',
+            width: 120,
             key: 'isActive',
             render: (h, {row, column, index}) => {
                 let isActive = row.isActive;
@@ -93,8 +103,115 @@ export default {
             }
         },
         {
+            title: 'a',
+            width: 120,
+            key: 'a'
+        },
+        {
+            title: 'aa',
+            width: 120,
+            key: 'aa'
+        },
+        {
+            title: 'aaa',
+            width: 120,
+            key: 'aaa'
+        },
+        {
+            title: 'b',
+            width: 120,
+            key: 'b'
+        },
+        {
+            title: 'bb',
+            width: 120,
+            key: 'bb'
+        },
+        {
+            title: 'bbb',
+            width: 120,
+            key: 'bbb'
+        },
+        {
+            title: 'c',
+            width: 120,
+            key: 'c'
+        },
+        {
+            title: 'cc',
+            width: 120,
+            key: 'cc'
+        },
+        {
+            title: 'ccc',
+            width: 120,
+            key: 'ccc'
+        },
+        {
+            title: 'd',
+            width: 120,
+            key: 'd'
+        },
+        {
+            title: 'dd',
+            width: 120,
+            key: 'dd'
+        },
+        {
+            title: 'ddd',
+            width: 120,
+            key: 'ddd'
+        },
+        {
+            title: 'e',
+            width: 120,
+            key: 'e'
+        },
+        {
+            title: 'ee',
+            width: 120,
+            key: 'ee'
+        },
+        {
+            title: 'eee',
+            width: 120,
+            key: 'eee'
+        },
+        {
+            title: 'f',
+            width: 120,
+            key: 'f'
+        },
+        {
+            title: 'ff',
+            width: 120,
+            key: 'ff'
+        },
+        {
+            title: 'fff',
+            width: 120,
+            key: 'fff'
+        },
+        {
+            title: 'g',
+            width: 120,
+            key: 'g'
+        },
+        {
+            title: 'gg',
+            width: 120,
+            key: 'gg'
+        },
+        {
+            title: 'ggg',
+            width: 120,
+            key: 'ggg'
+        },
+        {
             title: '操作',
             key: 'action',
+            width: 170,
+            fixed: 'right',
             filterDisable: 'after', // 后置默认选项(不受筛选控制)
             render: (h, {row, column, index}) => {
                 let id = row.id
