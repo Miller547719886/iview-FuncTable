@@ -339,7 +339,7 @@
             }
           }
         }
-        this.updateSearchKey()
+        if (this.updateSearchKey()) { return false }
         let newPage = common.analysisPage(this.page)
         let paramsStr = this.params2Str(this.params)
         this.toggleSpin()
@@ -593,8 +593,13 @@
         this.updateSearchKey()
       },
       updateSearchKey () {
-        if (!this.searchConfig) { return false }
-        this.$set(this.fetchConfig.params, this.searchConfig.key, this.searchInput) // 设置fetchConfig中用于查询的参数键值对
+        let hasTriggeredLoad = false
+        if (!this.searchConfig) { return hasTriggeredLoad }
+        if (this.fetchConfig.params[this.searchConfig.key] !== this.searchInput) {
+          this.$set(this.fetchConfig.params, this.searchConfig.key, this.searchInput) // 设置fetchConfig中用于查询的参数键值对
+          hasTriggeredLoad = true
+        }
+        return hasTriggeredLoad
       }
     },
     watch: {
