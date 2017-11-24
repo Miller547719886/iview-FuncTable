@@ -5,6 +5,8 @@
     
 ### 演示
 
+> [demo](http://rufer.site/iview-FuncTable/dist/)
+
 #### 表格操作(分组与单项)
 
 ![表格操作](https://raw.githubusercontent.com/Miller547719886/iview-FuncTable/master/gif/cz.gif)
