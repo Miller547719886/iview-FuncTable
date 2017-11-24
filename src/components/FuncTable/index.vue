@@ -303,9 +303,6 @@
         this.forceUpdateSign.flag = !this.forceUpdateSign.flag
         this.forceUpdateSign.page = page
       },
-      toggleSpin () {
-        this.spin = !this.spin
-      },
       refresh () {
         this.resetSelectedData()
         this.$set(this.fetchConfig.params, 'page', 1)
@@ -344,11 +341,10 @@
         if (this.updateSearchKey()) { return false }
         let newPage = common.analysisPage(this.page)
         let paramsStr = this.params2Str(this.params)
-        this.toggleSpin()
+        this.spin = true // 展示加载中
         if (this.pageConfig) {
           // 分页请求
           this.$http.get(this.url + paramsStr + (paramsStr ? `&` : `?`) + `page=${newPage}&size=${this.size}`).then((data) => {
-            this.toggleSpin()
             this.deletePageAndSizeInConfig()
             let cdata = data
             this.data = window._.get(cdata, fetchDataFormat.page.content)
@@ -359,11 +355,12 @@
             }
           }).catch((error) => {
             this.$Message.error(`请求错误；错误信息：${error}`)
+          }).then(() => { 
+            this.spin = false // 关闭加载中
           })
         } else {
           // 不分页请求
           this.$http.get(this.url + paramsStr).then((data) => {
-            this.toggleSpin()
             this.deletePageAndSizeInConfig()
             let cdata = data
             this.data = cdata
@@ -372,6 +369,8 @@
             }
           }).catch((error) => {
             this.$Message.error(`请求错误；错误信息：${error}`)
+          }).then(() => { 
+            this.spin = false // 关闭加载中
           })
         }
       },
