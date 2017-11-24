@@ -13,20 +13,21 @@
       <div class="func-table-refresh f-l ml-5" v-show="refreshable">
         <Button @click="refresh">刷新</Button>
       </div>
-      <div class="func-table-search f-r" v-if="searchConfig">
+      <form class="func-table-search f-r"
+        @keypress.enter.prevent="doSearch(searchInput)" v-if="searchConfig">
         <div class="clearfix">
           <Button-group class="f-r ml-10">
             <Button
               icon="ios-search"
               class="f-r"
-              @click="doSearch(searchInput)">查询</Button>
+              @click.stop="doSearch(searchInput)">查询</Button>
           </Button-group>
           <Button-group class="f-r ml-10">
             <Input v-model="searchInput" :placeholder="searchConfig.placeholder"
               :maxlength="searchConfig.maxLength" class="ivu-input-default f-r"></Input>
           </Button-group>
         </div>
-      </div>
+      </form>
     </div>
     <!-- 表格 + 筛选组件 -->
     <div class="func-table-main mb-10">
