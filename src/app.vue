@@ -41,58 +41,13 @@ export default {
         {
             type: 'selection',
             width: 60,
-            align: 'center'
+            align: 'center',
+            fixed: 'left'
         },
         {
-            title: '用户名',
-            key: 'account',
-            render: (h, {row, column, index}) => {
-                return h('div', [
-                h('Button', {
-                    props: {
-                    type: 'text',
-                    size: 'small'
-                    },
-                    on: {
-                    click: () => {
-                        alert(this.msg)
-                    }
-                    }
-                }, row.account)
-                ]);
-            }
-        },
-        {
-            title: '用户昵称',
-            key: 'name'
-        },
-        {
-            title: '用户工号',
-            key: 'id'
-        },
-        {
-            title: '手机号',
-            key: 'mobile'
-        },
-        {
-            title: '审核状态',
-            key: 'auditStatus'
-        },
-        {
-            title: '是否启用',
-            key: 'isActive',
-            render: (h, {row, column, index}) => {
-                let isActive = row.isActive;
-                return h('div', [
-                    h('span', {
-                        class: isActive == 1 ? ['ligth-blue'] : ['text-red']
-                    }, isActive == 1 ? '启用' : '禁用')
-                ]);
-            }
-            },
-            {
             title: '操作',
             key: 'action',
+            width: 170,
             render: (h, {row, column, index}) => {
                 let id = row.id
                 let isActive = row.isActive;
@@ -139,8 +94,170 @@ export default {
                         }
                     }, '删除')
                 ]);
+            },  
+            fixed: 'right',
+        },
+        {
+            title: '用户名',
+            key: 'account',
+            width: 120,
+            render: (h, {row, column, index}) => {
+                return h('div', [
+                h('Button', {
+                    props: {
+                    type: 'text',
+                    size: 'small'
+                    },
+                    style: {
+                        'paddingLeft': 0
+                    },
+                    on: {
+                    click: () => {
+                        alert(this.msg)
+                    }
+                    }
+                }, row.account)
+                ]);
             }
-        }
+        },
+        {
+            title: '用户昵称',
+            width: 120,
+            key: 'name'
+        },
+        {
+            title: '用户工号',
+            width: 120,
+            key: 'id'
+        },
+        {
+            title: '手机号',
+            width: 120,
+            key: 'mobile'
+        },
+        {
+            title: '审核状态',
+            width: 120,
+            key: 'auditStatus'
+        },
+        {
+            title: '是否启用',
+            width: 120,
+            key: 'isActive',
+            render: (h, {row, column, index}) => {
+                let isActive = row.isActive;
+                return h('div', [
+                    h('span', {
+                        class: isActive == 1 ? ['ligth-blue'] : ['text-red']
+                    }, isActive == 1 ? '启用' : '禁用')
+                ]);
+            }
+        },
+        {
+            title: 'a',
+            width: 120,
+            key: 'a'
+        },
+        {
+            title: 'aa',
+            width: 120,
+            key: 'aa'
+        },
+        {
+            title: 'aaa',
+            width: 120,
+            key: 'aaa'
+        },
+        {
+            title: 'b',
+            width: 120,
+            key: 'b'
+        },
+        {
+            title: 'bb',
+            width: 120,
+            key: 'bb'
+        },
+        {
+            title: 'bbb',
+            width: 120,
+            key: 'bbb'
+        },
+        {
+            title: 'c',
+            width: 120,
+            key: 'c'
+        },
+        {
+            title: 'cc',
+            width: 120,
+            key: 'cc'
+        },
+        {
+            title: 'ccc',
+            width: 120,
+            key: 'ccc'
+        },
+        {
+            title: 'd',
+            width: 120,
+            key: 'd'
+        },
+        {
+            title: 'dd',
+            width: 120,
+            key: 'dd'
+        },
+        {
+            title: 'ddd',
+            width: 120,
+            key: 'ddd'
+        },
+        {
+            title: 'e',
+            width: 120,
+            key: 'e'
+        },
+        {
+            title: 'ee',
+            width: 120,
+            key: 'ee'
+        },
+        {
+            title: 'eee',
+            width: 120,
+            key: 'eee'
+        },
+        {
+            title: 'f',
+            width: 120,
+            key: 'f'
+        },
+        {
+            title: 'ff',
+            width: 120,
+            key: 'ff'
+        },
+        {
+            title: 'fff',
+            width: 120,
+            key: 'fff'
+        },
+        {
+            title: 'g',
+            width: 120,
+            key: 'g'
+        },
+        {
+            title: 'gg',
+            width: 120,
+            key: 'gg'
+        },
+        {
+            title: 'ggg',
+            width: 120,
+            key: 'ggg'
+        },
       ], 
       searchConfig: { // 值为fasle则无查询功能。
         placeholder: '请输入xxx', // 查询框占位符。
@@ -148,7 +265,7 @@ export default {
         maxlength: 20 // 查询框支持的最大长度。
       },
       filterConfig: { // 值为fasle则无筛选功能。
-        mode: 'check' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
+        mode: 'transfer' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
       },
       fetchConfig: {}, // 必填（初始化时为空对象，在load方法内填充配置）。
       ids: []
