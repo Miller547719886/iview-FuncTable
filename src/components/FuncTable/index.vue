@@ -154,46 +154,49 @@
       editConfig: {
         type: [Object, Boolean],
         require: false,
-        default: () => ({})
+        default: false
       },
       /* 查询配置|选填 */
       searchConfig: {
         type: [Object, Boolean],
         require: false,
-        default: () => ({
-          key: 'name',
-          placeholder: '请输入内容', // 输入框占位符
-          maxLength: 20 // 最大长度
-        })
+        default: false
+        // () => ({
+        //   key: 'name',
+        //   placeholder: '请输入内容', // 输入框占位符
+        //   maxLength: 20 // 最大长度
+        // })
       },
       /* 分页配置|选填 */
       pageConfig: {
         type: [Object, Boolean],
         require: false,
-        default: () => ({
-          pagePosition: 'right', // 'left', 'middle', 'right'
-          showSizer: true,
-          showElevator: true
-        })
+        default: false
+        // () => ({
+        //   pagePosition: 'right', // 'left', 'middle', 'right'
+        //   showSizer: true,
+        //   showElevator: true
+        // })
       },
       /* 筛选配置|选填 */
       filterConfig: {
         type: [Object, Boolean],
         require: false,
-        default: () => ({
-          mode: 'transfer' // 'transfer', 'check'
-        })
+        default: false
+        // () => ({
+        //   mode: 'transfer' // 'transfer', 'check'
+        // })
       },
       /* http请求配置|必填 */
       fetchConfig: {
         type: Object,
-        require: false,
+        require: true,
         default: () => ({})
       },
       /* 表格id(本地存储用)|选填 */
       id: {
         type: String,
-        require: true,
+        require: false,
         default: ''
       },
       /* 表格列配置|必填 */
@@ -336,6 +339,7 @@
             }
           }
         }
+        this.updateSearchKey()
         let newPage = common.analysisPage(this.page)
         let paramsStr = this.params2Str(this.params)
         this.toggleSpin()
@@ -586,7 +590,11 @@
       /* ----- 查询相关 ----- */
       doSearch (val) {
         this.resetPage()
-        this.$set(this.fetchConfig.params, this.searchConfig.key, val) // 设置fetchConfig中用于查询的参数键值对
+        this.updateSearchKey()
+      },
+      updateSearchKey () {
+        if (!this.searchConfig) { return false }
+        this.$set(this.fetchConfig.params, this.searchConfig.key, this.searchInput) // 设置fetchConfig中用于查询的参数键值对
       }
     },
     watch: {
@@ -659,9 +667,8 @@
         height: 38px;
         border-radius: 10px 10px 0 0;
         line-height: 38px;
-        border: 1px solid #eeeff1;
         border-bottom: none;
-        background-color: #f1f4f9;
+        background-color: #f8f8f9;
         float: right;
       }
     // }

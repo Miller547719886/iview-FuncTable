@@ -1,5 +1,9 @@
 <template>
   <div id="app" style="width: 80%; margin: 50px auto">
+      <button-group class="mb-10">
+          <Button @click="switchCMode">check模式</Button>
+          <Button @click="switchTMode">transfer模式</Button>
+      </button-group>
       <func-table
         id="table-001"
         :columns="columns"
@@ -157,6 +161,12 @@ export default {
     this.load() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
   },
   methods: {
+    switchCMode () {
+      this.$set(this.filterConfig, 'mode', 'check')
+    },
+    switchTMode () {
+      this.$set(this.filterConfig, 'mode', 'transfer')
+    },
     handlerAdd () {
       alert(`添加一条内容`)
     },
