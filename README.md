@@ -59,7 +59,11 @@ export default {
         showElevator: true, // 配置iview中的shiw-elevator。
         pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。
       },
-      columns: [...], // 必填，按照普通columns填写即可。
+      columns: [{ // 必填，除了按照普通columns填写，开头项与末尾项中可添加filterDisable选项，用于配置筛选功能无法配置的项，值为'before','after'。
+        key: 'action',
+        title: '操作',
+        filterDisable: 'before'
+      }],
       searchConfig: { // 值为fasle则无查询功能。
         placeholder: '请输入xxx', // 查询框占位符。
         key: 'name', // 查询请求依赖的参数。
