@@ -38,11 +38,12 @@ export default {
         pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。
       },
       columns: [ // 必填
-        {
-            type: 'selection',
-            width: 60,
-            align: 'center'
-        },
+        // {
+        //     type: 'selection',
+        //     width: 60,
+        //     align: 'center',
+        //     filterDisable: 'before' // 前置默认选项(不受筛选控制)
+        // },
         {
             title: '用户名',
             key: 'account',
@@ -89,10 +90,11 @@ export default {
                     }, isActive == 1 ? '启用' : '禁用')
                 ]);
             }
-            },
-            {
+        },
+        {
             title: '操作',
             key: 'action',
+            filterDisable: 'after', // 后置默认选项(不受筛选控制)
             render: (h, {row, column, index}) => {
                 let id = row.id
                 let isActive = row.isActive;
@@ -148,7 +150,7 @@ export default {
         maxlength: 20 // 查询框支持的最大长度。
       },
       filterConfig: { // 值为fasle则无筛选功能。
-        mode: 'check' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
+        mode: 'transfer' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
       },
       fetchConfig: {}, // 必填（初始化时为空对象，在load方法内填充配置）。
       ids: []

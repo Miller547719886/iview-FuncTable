@@ -59,10 +59,13 @@
         }
       },
       disabledSelections: {
-        type: Array,
+        type: Object,
         required: false,
         default: () => {
-          return []
+          return {
+            before: [], // 前置禁选项
+            after: [] // 后置禁选项
+          }
         }
       }
     },
@@ -133,16 +136,16 @@
       render (item) {
         return /* item.key + ':' +  */item.label
       },
-      onChange (newTargetKeys) {
-        // 按照disable normal disable排序
+      onChange (newTargetKeys, direction, moveKeys) {
+        if (direction === 'right') {
+          newTargetKeys = _.difference(newTargetKeys, moveKeys).concat(moveKeys) // 首先将移动项放在所有禁选项之后
+        }
         newTargetKeys.map((item, index, array) => {
-          if (this.disabledSelections.includes(item)) {
-            if (index !== array.length - 1) { // 不是最后一项目
-              if (index !== 0) {
-                let _item = item
-                array.splice(index, 1)
-                array.unshift(_item)
-              }
+          if (this.disabledSelections.after.includes(item)) { // 是禁选项
+            if (index !== array.length - 1) { // 不是最后一项
+              let _item = item
+              array.splice(index, 1)
+              array.push(_item) // 置于最后
             }
           }
         })

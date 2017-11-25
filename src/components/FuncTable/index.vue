@@ -230,7 +230,6 @@
         filteredColumns: [],
         /* 筛选多选框 */
         tableColumnsChecked: [],
-        disabledSelections: ['多选', '操作', 'selection', 'action'], // 根据type判断是否禁用
         defaultKeys: ['page', 'size'],
         titles: ['可选字段', '已选字段'],
         modalTransfer: {
@@ -406,7 +405,7 @@
         configUtils.clearColumnsKey()
       },
       checkDisabled (item) {
-        if (this.disabledSelections.includes(item)) {
+        if (this.disabledSelections.before.includes(item) || this.disabledSelections.after.includes(item)) {
           return true
         }
       },
@@ -490,7 +489,7 @@
         this.$refs['check' + index][0].$forceUpdate()
       },
       isDisabled (n) {
-        return this.disabledSelections.includes(n)
+        return this.disabledSelections.before.includes(n) || this.disabledSelections.after.includes(n)
       },
       /* 显示穿梭框 */
       showModalTransfer () {
@@ -539,13 +538,17 @@
        */
       changeColumns2Transfer (data) {
         let _this = this
-        let ds = this.disabledSelections
+        let dsb = this.disabledSelections.before
+        let dsa = this.disabledSelections.after
         return data.map((item, index) => {
           let _item
           _item = {
             key: _this.formatColumnsItemKey(item),
             label: _this.formatColumnsItemLabel(item) + _this.formatColumnsItemKey(item),
-            disabled: ds.includes(item.key) || ds.includes(item.type)
+            disabled: dsb.includes(item.key)
+              || dsb.includes(item.type)
+              || dsa.includes(item.key)
+              || dsa.includes(item.type)
           }
           return _item
         })
@@ -560,7 +563,6 @@
       },
       /* 根据orderedRightData确定filteredColumns */
       changeTransfer2Columns (data) {
-        // let ds = this.disabledSelections
         let orderedColumns = []
         data.map((item, index, array) => {
           let column = this.columns.find((_item, index, array) => {
@@ -658,6 +660,27 @@
       }
     },
     computed: {
+      disabledSelections () {
+        let disabledSelections = {
+          before: [],
+          after: []
+        }
+        this.columns.filter((item, index, array) => {
+          return item.hasOwnProperty('filterDisable')
+        }).map((item, index, array) => {
+          switch (item['filterDisable']) {
+            case 'before':
+              disabledSelections['before'].push(item.key || item.type)
+              break
+            case 'after':
+              disabledSelections['after'].push(item.key || item.type)
+              break
+            default: 
+              break
+          }
+        })
+        return disabledSelections
+      },
       // 筛选相关
       checkList () {
         let list = Object.values(this.columns).map((item) => {
