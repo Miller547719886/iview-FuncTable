@@ -6,7 +6,7 @@
       :data="data"
       :titles="titles"
       :target-keys="targetKeys"
-      :operations="['向左移动','向右移动']"
+      :operations="operations"
       :list-style="listStyle"
       :selected-keys="selectedKeys">
     </Transfer>
@@ -49,6 +49,13 @@
         required: false,
         default: () => {
           return ['源列表', '目的列表']
+        }
+      },
+      operations: {
+        type: Array,
+        required: false,
+        default: () => {
+          return ['向左移动', '向右移动']
         }
       },
       disabledSelections: {

@@ -34,6 +34,8 @@
       <div class="func-table-filter" v-if="filterConfig">
         <div v-if="modalTransfer.exist">
           <Modal v-show="isTransferMode"
+            ok-text="保存"
+            cancel-text="重置"
             v-model="modalTransfer.show"
             :title="modalTransfer.title"
             width="720px"
@@ -41,6 +43,7 @@
             <CTransfer ref="CTransfer"
               :disabledSelections="disabledSelections"
               :data="transferData"
+              :operations="['删除', '添加']"
               v-model="targetKeys"
               :titles="titles"
               @on-right-data-change="handleRightDataChange"></CTransfer>
@@ -229,7 +232,7 @@
         tableColumnsChecked: [],
         disabledSelections: ['多选', '操作', 'selection', 'action'], // 根据type判断是否禁用
         defaultKeys: ['page', 'size'],
-        titles: ['已过滤列', '已选择列'],
+        titles: ['可选字段', '已选字段'],
         modalTransfer: {
           show: false,
           title: '自定义列表',
@@ -640,7 +643,9 @@
         } else {
           this.$refs['CTransfer'].reset()
           this.$nextTick(() => {
-            this.$set(this.modalTransfer, 'exist', false)
+            setTimeout(() =>{
+              this.$set(this.modalTransfer, 'exist', false)
+            }, 300)
           })
         }
       },
