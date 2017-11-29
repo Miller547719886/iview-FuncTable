@@ -6,6 +6,7 @@
       </button-group>
       <func-table
         id="table-001"
+        :ids="ids"
         :columns="columns"
         :pageConfig="pageConfig"
         :searchConfig="searchConfig"
@@ -38,12 +39,12 @@ export default {
         pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。
       },
       columns: [ // 必填
-        // {
-        //     type: 'selection',
-        //     width: 60,
-        //     align: 'center',
-        //     filterDisable: 'before' // 前置默认选项(不受筛选控制)
-        // },
+        {
+            type: 'selection',
+            width: 60,
+            align: 'center',
+            filterDisable: 'before' // 前置默认选项(不受筛选控制)
+        },
         {
             title: '用户名',
             key: 'account',
@@ -185,10 +186,12 @@ export default {
         }
       }
     },
-    getIds (data) {
-        this.ids = data.map((item, index, array) => {
+    getIds (data) { // 根据返回的勾选的data合并ids
+        let newIds = data.map((item, index, array) => {
             return item.id
         })
+        this.ids.push(...newIds) // 合并多页勾选的id
+        this.ids = _.uniq(this.ids) // 去重
         console.log(this.ids, data)
     }
   }

@@ -148,6 +148,12 @@
       event: 'on-fetch-config-change'
     },
     props: {
+      // 勾选的id
+      ids: {
+        type: [Array],
+        require: true,
+        default: () => []
+      },
       /* 可否刷新|选填 */
       refreshable: {
         type: [Boolean],
@@ -215,7 +221,6 @@
         selectedData: [],
         data: [],
         spin: false,
-        ids: [],
         /* 分页相关 */
         size: 10,
         page: 1,
@@ -351,6 +356,11 @@
             this.deletePageAndSizeInConfig()
             let cdata = data
             this.data = window._.get(cdata, fetchDataFormat.page.content)
+            this.data.map((item) => { // 回显勾选项
+              if (this.ids.includes(item['id'])) {
+                item._checked = true 
+              }
+            })
             this.total = window._.get(cdata, fetchDataFormat.page.total)
             this.emitTotal(this.total)
             if (this.fetchConfig.callback) {
