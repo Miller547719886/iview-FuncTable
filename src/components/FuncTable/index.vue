@@ -1,120 +1,20 @@
 <template>
   <div class="func-table">
-    <!-- 批量操作组 + 查询 -->
-    <div class="clearfix func-table-top mb-10">
-      <!-- 批量操作组（slot） -->
-      <div class="func-table-batch-operation f-l">
-        <slot name="batch-operation">
-          <!-- <Button>添加</Button>
-          <Button>编辑</Button>
-          <Button>删除</Button> -->
-        </slot>
-      </div>
-      <div class="func-table-refresh f-l ml-5" v-show="refreshable">
-        <Button @click="refresh">刷新</Button>
-      </div>
-      <form class="func-table-search f-r"
-        @keypress.enter.prevent="doSearch(searchInput)" v-if="searchConfig">
-        <div class="clearfix">
-          <Button-group class="f-r ml-10">
-            <Button
-              icon="ios-search"
-              class="f-r"
-              @click.stop="doSearch(searchInput)">查询</Button>
-          </Button-group>
-          <Button-group class="f-r ml-10">
-            <Input v-model="searchInput" :placeholder="searchConfig.placeholder"
-              :maxlength="searchConfig.maxLength" class="ivu-input-default f-r"></Input>
-          </Button-group>
-        </div>
-      </form>
-    </div>
-    <!-- 表格 + 筛选组件 -->
+    <!-- 批量操作+查询 -->
+    <table-batch-with-search></table-batch-with-search>
     <div class="func-table-main mb-10">
-      <div class="func-table-filter" v-if="filterConfig">
-        <div v-if="modalTransfer.exist">
-          <Modal v-show="isTransferMode"
-            ok-text="保存"
-            cancel-text="重置"
-            v-model="modalTransfer.show"
-            :title="modalTransfer.title"
-            width="720px"
-            @on-ok="saveColumnsConfig">
-            <CTransfer ref="CTransfer"
-              :disabledSelections="disabledSelections"
-              :data="transferData"
-              :operations="['删除', '添加']"
-              v-model="targetKeys"
-              :titles="titles"
-              @on-right-data-change="handleRightDataChange"></CTransfer>
-          </Modal>
-        </div>
-        <div class="clearfix">
-          <Checkbox-group ref="checkList" class="mt-10 f-l"
-            v-show="isCheckMode"
-            v-model="tableColumnsChecked"
-            @on-change="fillTableColumns"
-            @on-current-change="CurrentChange"
-            @on-select="Select"
-            @on-select-cancel="SelectCancel"
-            @on-select-all="SelectAll"
-            @on-selection-change="SelectionChange"
-            @on-sort-change="SortChange"
-            @on-row-click="RowClick"
-            @on-row-dblclick="RowDblclick"
-            @on-expand="Expand">
-            <Checkbox :ref="'check' + index"
-              v-for="(item, index) in checkList"
-              :disabled="checkDisabled(item)"
-              :label="item" :key="item"></Checkbox>
-          </Checkbox-group>
-          <slot name="default">
-            <div class="topButton">
-              <!-- <button class="but_c" @click="clearStorage">
-                <Icon type="ios-upload-outline" size="18"></Icon>恢复默认配置
-              </button> -->
-              <button class="but_c" @click="showModalTransfer" v-if="isTransferMode">
-                <Icon type="compose" size="18"></Icon> 自定义列表显示内容
-              </button>
-              <!-- <button class="but_c" @click="exportData" v-if="exportExcel">
-                <Icon type="ios-upload-outline" size="18"></Icon> 导出Excel
-              </button> -->
-            </div>
-          </slot>
-        </div>
+      <!-- 表格列筛选 -->
+      <div v-if="filterConfig">
+        <table-filter></table-filter>
       </div>
-      <div class="topPosition spin-outer">
-        <Table stripe ref="table"
-          :columns="filteredColumns"
-          :id="id"
-          :data="data"
-          @on-selection-change="setselectedData"
-          @on-current-change="emitCurrentChange">
-        </Table>
-        <!-- 加载中 -->
-        <Spin size="large"
-              fix
-              v-show="spin"
-              class="login_loading_spin">
-          <Icon type="load-c"
-                size="18"
-                class="login-spin-icon-load"></Icon>
-          <div>加载中...</div>
-        </Spin>
-      </div>
+      <!-- 表格主体 -->
+      <table-main></table-main>
     </div>
     <!-- 分页组件 -->
     <div class="func-table-page clearfix"
       v-if="pageConfig"
       :style="setPagePosition(pageConfig.pagePosition)">
-      <Page ref="page" style="float: none; display: inline-block"
-        :total="total"
-        :page-size="size"
-        :show-elevator="pageConfig.showElevator"
-        :show-sizer="pageConfig.showSizer"
-        show-total
-        @on-change="pageChange"
-        @on-page-size-change="pageSizeChange"></Page>
+      <table-page></table-page>
     </div>
   </div>
 </template>
@@ -137,6 +37,11 @@
   import dom from '@/utils/dom'
   import loginUtils from '@/utils/loginUtils'
   import fetchDataFormat from './fetchDataFormat'
+
+  import tableBatchWithSearch from './batchWithSearch'
+  import tableFilter from './filter'
+  import tableMain from './main'
+  import tablePage from './page'
 
   export default {
     name: 'FuncTable',
