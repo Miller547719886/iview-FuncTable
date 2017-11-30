@@ -635,6 +635,19 @@
         VMPage.currentPage = this.forceUpdateSign.page
         VMPage.$forceUpdate()
       },
+      filteredColumns (v) {
+        /* 处理宽度太少不够填满整个表格的情况 */
+        if (!window._.some(v, ['fixWidth', true])) {
+          let lastNotFixedIndex = v.findIndex((item) => {
+            return item.fixed && item.fixed === 'right'
+          })
+          v.splice(lastNotFixedIndex, 0, {
+            fixWidth: true, // 该column为了修正width而存在
+            key: '',
+            title: ' ', // 不填充为空格则会自动填充#
+          })
+        }
+      },
       /* 监听checkbox变化 */
       tableColumnsChecked (newV, oldV) {
         /* 如果不存在禁用勾选项之外的任何勾选项 */
