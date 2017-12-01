@@ -70,9 +70,9 @@
           </Checkbox-group>
           <slot name="default">
             <div class="topButton">
-              <!-- <button class="but_c" @click="clearStorage">
+              <button class="but_c" @click="clearStorage">
                 <Icon type="ios-upload-outline" size="18"></Icon>恢复默认配置
-              </button> -->
+              </button>
               <button class="but_c" @click="showModalTransfer" v-if="isTransferMode">
                 <Icon type="compose" size="18"></Icon> 自定义列表显示内容
               </button>
@@ -566,8 +566,11 @@
       /* 保存keysToSave */
       handleRightDataChange (data) {
         let keysToSave = []
+        console.log(data)
         data.map((item, index, array) => {
-          keysToSave.push(item.key)
+          if (item) { // 过滤添加一个空的填充宽度用column导致多出一个undefined项
+            keysToSave.push(item.key)
+          }
         })
         this.keysToSave = keysToSave
       },
@@ -643,7 +646,7 @@
           })
           v.splice(lastNotFixedIndex, 0, {
             fixWidth: true, // 该column为了修正width而存在
-            key: '',
+            key: window.Null,
             title: ' ', // 不填充为空格则会自动填充#
           })
         }

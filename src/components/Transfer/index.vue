@@ -103,7 +103,7 @@
         // if (target.tagName === 'LI') {
         //   target = target
         // }
-        if (target.querySelector('input').disabled) { // 禁用不会被选定
+        if (target.tagName !== 'INPUT' && target.querySelector('input').disabled) { // 禁用不会被选定
           return false
         }
         if (dom.hasClass(target, this.itemClassName)) {
