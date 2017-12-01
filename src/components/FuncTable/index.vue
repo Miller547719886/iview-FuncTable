@@ -140,12 +140,12 @@
 
   export default {
     name: 'FuncTable',
-    components: {
-      CTransfer
-    },
     model: {
       prop: 'fetchConfig',
       event: 'on-fetch-config-change'
+    },
+    components: {
+      CTransfer
     },
     props: {
       // 勾选的id
@@ -249,6 +249,101 @@
         configColumnsKey: null,
         /* 搜索相关 */
         searchInput: ''
+      }
+    },
+    computed: {
+      disabledSelections () {
+        let disabledSelections = {
+          before: [],
+          after: []
+        }
+        this.columns.filter((item, index, array) => {
+          return item.hasOwnProperty('filterDisable')
+        }).map((item, index, array) => {
+          switch (item['filterDisable']) {
+            case 'before':
+              disabledSelections['before'].push(item.key || item.type)
+              break
+            case 'after':
+              disabledSelections['after'].push(item.key || item.type)
+              break
+            default:
+              break
+          }
+        })
+        return disabledSelections
+      },
+      // 筛选相关
+      checkList () {
+        let list = Object.values(this.columns).map((item) => {
+          return this.formatColumnsItemLabel(item)
+        })
+        /* 初始化被勾选项目为全部 */
+        this.tableColumnsChecked = list
+        return list
+      },
+      isCheckMode () {
+        return this.filterConfig.mode === 'check'
+      },
+      isTransferMode () {
+        return this.filterConfig.mode === 'transfer'
+      }
+    },
+    watch: {
+      selectedData (v) {
+        this.emitSelectionChange(v)
+      },
+      // 分页相关
+      'forceUpdateSign.flag' (v) {
+        let VMPage = this.$refs['page']
+        VMPage.currentPage = this.forceUpdateSign.page
+        VMPage.$forceUpdate()
+      },
+      filteredColumns (v) {
+        /* 处理宽度太少不够填满整个表格的情况 */
+        if (!window._.some(v, ['fixWidth', true])) {
+          let lastNotFixedIndex = v.findIndex((item) => {
+            return item.fixed && item.fixed === 'right'
+          })
+          v.splice(lastNotFixedIndex, 0, {
+            fixWidth: true, // 该column为了修正width而存在
+            key: window.Null,
+            title: ' ' // 不填充为空格则会自动填充#
+          })
+        }
+      },
+      /* 监听checkbox变化 */
+      tableColumnsChecked (newV, oldV) {
+        /* 如果不存在禁用勾选项之外的任何勾选项 */
+        if (!window._.reject(newV, this.isDisabled).length) {
+          this.tableColumnsChecked = oldV
+          this.$Message.warning('请至少保留一条有效列内容！')
+          this.triggerClick(oldV) // 模拟触发点击（最后一个被取消的勾选恢复勾选状态）
+        }
+        /* 更改表格列配置 */
+        if (this.isCheckMode) { // 在check模式下修改filteredColumns
+          this.filteredColumns = this.getTable2Columns()
+        }
+      },
+      'modalTransfer.show' (v) {
+        if (v) {
+          this.getFullColumns()
+          this.getTargetKey()
+        } else {
+          this.$refs['CTransfer'].reset()
+          this.$nextTick(() => {
+            setTimeout(() => {
+              this.$set(this.modalTransfer, 'exist', false)
+            }, 300)
+          })
+        }
+      },
+      fetchConfig: {
+        handler (v) {
+          this.$emit('on-fetch-config-change', v)
+          this.load(v) // 监听fetchConfig数据变化自动请求
+        },
+        deep: true
       }
     },
     created () {
@@ -358,7 +453,7 @@
             this.data = window._.get(cdata, fetchDataFormat.page.content)
             this.data.map((item) => { // 回显勾选项
               if (this.ids.includes(item['id'])) {
-                item._checked = true 
+                item._checked = true
               }
             })
             this.total = window._.get(cdata, fetchDataFormat.page.total)
@@ -368,7 +463,7 @@
             }
           }).catch((error) => {
             this.$Message.error(`请求错误；错误信息：${error}`)
-          }).then(() => { 
+          }).then(() => {
             this.spin = false // 关闭加载中
           })
         } else {
@@ -382,7 +477,7 @@
             }
           }).catch((error) => {
             this.$Message.error(`请求错误；错误信息：${error}`)
-          }).then(() => { 
+          }).then(() => {
             this.spin = false // 关闭加载中
           })
         }
@@ -555,10 +650,10 @@
           _item = {
             key: _this.formatColumnsItemKey(item),
             label: _this.formatColumnsItemLabel(item) + _this.formatColumnsItemKey(item),
-            disabled: dsb.includes(item.key)
-              || dsb.includes(item.type)
-              || dsa.includes(item.key)
-              || dsa.includes(item.type)
+            disabled: dsb.includes(item.key) ||
+              dsb.includes(item.type) ||
+              dsa.includes(item.key) ||
+              dsa.includes(item.type)
           }
           return _item
         })
@@ -626,101 +721,6 @@
           hasTriggeredLoad = true
         }
         return hasTriggeredLoad
-      }
-    },
-    watch: {
-      selectedData (v) {
-        this.emitSelectionChange(v)
-      },
-      // 分页相关
-      'forceUpdateSign.flag' (v) {
-        let VMPage = this.$refs['page']
-        VMPage.currentPage = this.forceUpdateSign.page
-        VMPage.$forceUpdate()
-      },
-      filteredColumns (v) {
-        /* 处理宽度太少不够填满整个表格的情况 */
-        if (!window._.some(v, ['fixWidth', true])) {
-          let lastNotFixedIndex = v.findIndex((item) => {
-            return item.fixed && item.fixed === 'right'
-          })
-          v.splice(lastNotFixedIndex, 0, {
-            fixWidth: true, // 该column为了修正width而存在
-            key: window.Null,
-            title: ' ', // 不填充为空格则会自动填充#
-          })
-        }
-      },
-      /* 监听checkbox变化 */
-      tableColumnsChecked (newV, oldV) {
-        /* 如果不存在禁用勾选项之外的任何勾选项 */
-        if (!window._.reject(newV, this.isDisabled).length) {
-          this.tableColumnsChecked = oldV
-          this.$Message.warning('请至少保留一条有效列内容！')
-          this.triggerClick(oldV) // 模拟触发点击（最后一个被取消的勾选恢复勾选状态）
-        }
-        /* 更改表格列配置 */
-        if (this.isCheckMode) { // 在check模式下修改filteredColumns
-          this.filteredColumns = this.getTable2Columns()
-        }
-      },
-      'modalTransfer.show' (v) {
-        if (v) {
-          this.getFullColumns()
-          this.getTargetKey()
-        } else {
-          this.$refs['CTransfer'].reset()
-          this.$nextTick(() => {
-            setTimeout(() =>{
-              this.$set(this.modalTransfer, 'exist', false)
-            }, 300)
-          })
-        }
-      },
-      fetchConfig: {
-        handler (v) {
-          this.$emit('on-fetch-config-change', v)
-          this.load(v) // 监听fetchConfig数据变化自动请求
-        },
-        deep: true
-      }
-    },
-    computed: {
-      disabledSelections () {
-        let disabledSelections = {
-          before: [],
-          after: []
-        }
-        this.columns.filter((item, index, array) => {
-          return item.hasOwnProperty('filterDisable')
-        }).map((item, index, array) => {
-          switch (item['filterDisable']) {
-            case 'before':
-              disabledSelections['before'].push(item.key || item.type)
-              break
-            case 'after':
-              disabledSelections['after'].push(item.key || item.type)
-              break
-            default: 
-              break
-          }
-        })
-        return disabledSelections
-      },
-      // 筛选相关
-      checkList () {
-        let list = Object.values(this.columns).map((item) => {
-          return this.formatColumnsItemLabel(item)
-        })
-        /* 初始化被勾选项目为全部 */
-        this.tableColumnsChecked = list
-        return list
-      },
-      isCheckMode () {
-        return this.filterConfig.mode === 'check'
-      },
-      isTransferMode () {
-        return this.filterConfig.mode === 'transfer'
       }
     }
   }

@@ -82,6 +82,22 @@
         orderedRightData: null
       }
     },
+    computed: {
+
+    },
+    watch: {
+      targetKeys (v) {
+        /* 根据targetKeys配置orderedRightData */
+        let data = []
+        v.map((item, index, array) => {
+          let _item = this.data.find((_item, index, array) => {
+            return _item.key === item
+          })
+          data.push(_item)
+        })
+        this.orderedRightData = data
+      }
+    },
     mounted () {
       let vm = this.$refs['Transfer']
       let el = vm.$el
@@ -216,22 +232,6 @@
       clearSelectedIndex () {
         this.selectedIndex = null
       }
-    },
-    watch: {
-      targetKeys (v) {
-        /* 根据targetKeys配置orderedRightData */
-        let data = []
-        v.map((item, index, array) => {
-          let _item = this.data.find((_item, index, array) => {
-            return _item.key === item
-          })
-          data.push(_item)
-        })
-        this.orderedRightData = data
-      }
-    },
-    computed: {
-
     }
   }
 </script>
