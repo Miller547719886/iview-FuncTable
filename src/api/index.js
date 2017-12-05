@@ -5,7 +5,7 @@ const isDev = process.env.NODE_ENV === 'development'
 const successCode = 10000
 const http = axios.create({
   // change in mock mode
-  baseURL: 'http://www.easy-mock.com/mock/5a168608b38a3c5b4c7a7163/example'
+  baseURL: 'https://www.easy-mock.com/mock/5a168608b38a3c5b4c7a7163/example'
 })
 
 // 配置拦截器与错误处理
