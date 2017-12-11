@@ -41,12 +41,19 @@
 <!-- template -->
 <func-table
   id="table-001"
+  :data="data"
   :refreshable="refreshable"
-  :columns="columns"
+  :columns="handledColumns"
   :pageConfig="pageConfig"
   :searchConfig="searchConfig"
   :filterConfig="filterConfig"
-  v-model="fetchConfig"></func-table>
+  @on-data-change="handleOnDataChange"
+  v-model="fetchConfig">
+  <div slot="batch-operation">
+    <Button @click="handleAddField" icon="plus-round">添加字段</Button>
+    <!-- <Button @click="handlerBatchDel">删除</Button> -->
+  </div>
+</func-table>
 ```
 
 在mixin中，默认已经配置好了初始化的data与methods，所以在使用时只需要导入该mixin并覆盖你所需要自定义的data与methods即可。下例展示了所有的data与methods配置项。
