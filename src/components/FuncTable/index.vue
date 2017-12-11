@@ -728,7 +728,9 @@
 <style lang="scss">
   /* stylelint-disable */
   .func-table {
-    padding-bottom: 150px;
+    .func-table-page {
+      padding-bottom: 150px;
+    }
     // .topPosition {
     //   position: relative;
       .topButton {

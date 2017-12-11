@@ -39,6 +39,9 @@ export default {
     return {
       msg: '请求中。。。',
       refreshable: true,
+      filterConfig: {
+        mode: 'transfer'    
+      },
       columns: [ // 必填
         {
             type: 'selection',
