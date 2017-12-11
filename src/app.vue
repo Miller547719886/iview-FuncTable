@@ -7,11 +7,14 @@
       <func-table
         id="table-001"
         :ids="ids"
+        :data="data"
+        :refreshable="refreshable"
         :columns="columns"
         :pageConfig="pageConfig"
         :searchConfig="searchConfig"
         :filterConfig="filterConfig"
-        @on-selection-change="getIds"
+        @on-data-change="handleOnDataChange"
+        @on-selection-change="handleOnSelChange"
         v-model="fetchConfig">
         <div slot="batch-operation">
           <Button @click="handlerAdd">添加</Button>
@@ -24,20 +27,17 @@
 <script>
 import loginUtils from '@/utils/loginUtils'
 import FuncTable from '@/components/FuncTable'
+import FuncTableMixin from '@/components/FuncTable/mixin'
 
 export default {
   name: 'app',
   components: {
     FuncTable
   },
+  mixins: [FuncTableMixin],
   data () {
     return {
-      msg: '请求中。。。', // 这个不是必须的，只是为了展示回调的功能。。。
-      pageConfig: { // 值为fasle则无分页功能。
-        showSizer: true, // 配置iview中的shiw-sizer。
-        showElevator: true, // 配置iview中的shiw-elevator。
-        pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。
-      },
+      msg: '请求中。。。',
       columns: [ // 必填
         {
             type: 'selection',
@@ -261,17 +261,7 @@ export default {
                 ]);
             }
         }
-      ], 
-      searchConfig: { // 值为fasle则无查询功能。
-        placeholder: '请输入xxx', // 查询框占位符。
-        key: 'account', // 查询请求依赖的参数。
-        maxlength: 20 // 查询框支持的最大长度。
-      },
-      filterConfig: { // 值为fasle则无筛选功能。
-        mode: 'transfer' // 筛选功能的前端展示模式，提供'check', 'transfer'两种模式。
-      },
-      fetchConfig: {}, // 必填（初始化时为空对象，在load方法内填充配置）。
-      ids: []
+      ]
     }
   },
   created () {
@@ -281,6 +271,9 @@ export default {
     this.load() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
   },
   methods: {
+    handleOnDataChange (data) {
+      this.data = data // 改变此处的data才能让table内的data变化
+    },
     switchCMode () {
       this.$set(this.filterConfig, 'mode', 'check')
     },
@@ -303,7 +296,7 @@ export default {
         }
       }
     },
-    getIds (data) { // 根据返回的勾选的data合并ids
+    handleOnSelChange (data) { // 根据返回的勾选的data合并ids
         let newIds = data.map((item, index, array) => {
             return item.id
         })

@@ -6,7 +6,6 @@
       <div class="func-table-batch-operation f-l">
         <slot name="batch-operation">
           <!-- <Button>添加</Button>
-          <Button>编辑</Button>
           <Button>删除</Button> -->
         </slot>
       </div>
@@ -87,7 +86,7 @@
         <Table stripe ref="table"
           :columns="filteredColumns"
           :id="id"
-          :data="data"
+          :data="handledData"
           @on-selection-change="setselectedData"
           @on-current-change="emitCurrentChange">
         </Table>
@@ -209,6 +208,11 @@
         require: false,
         default: ''
       },
+      data: {
+        type: Array,
+        require: false,
+        default: () => []
+      },
       /* 表格列配置|必填 */
       columns: {
         type: Array,
@@ -219,7 +223,6 @@
     data () {
       return {
         selectedData: [],
-        data: [],
         spin: false,
         /* 分页相关 */
         size: 10,
@@ -232,7 +235,7 @@
           page: 0
         },
         /* 筛选相关 */
-        filteredColumns: [],
+        filteredColumns: this.columns,
         /* 筛选多选框 */
         tableColumnsChecked: [],
         defaultKeys: ['page', 'size'],
@@ -272,6 +275,14 @@
           }
         })
         return disabledSelections
+      },
+      handledData: {
+        get () {
+          return this.data
+        },
+        set (v) {
+          this.$emit('on-data-change', v)
+        }
       },
       // 筛选相关
       checkList () {
@@ -350,7 +361,9 @@
       // 获取当前表格对应的全部columns与targetKeys
     },
     mounted () {
-      this.fillTableColumns()
+      if (this.isCheckMode) {
+        this.fillTableColumns()
+      }
     },
     methods: {
       /* ----- 分页相关 ----- */
@@ -396,7 +409,7 @@
               str += ((i === 0) ? `?` : `&`) + `${k}=${encodeURIComponent(v)}`
               i++
             } else {
-              console.log('异常参数：' + k, '异常参数值：' + v)
+              console.log('异常参数：' + k, '异常参数值：' + (typeof v === 'string' && '（空字符串）'))
             }
           }
         }
@@ -450,16 +463,17 @@
           this.$http.get(this.url + paramsStr + (paramsStr ? `&` : `?`) + `page=${newPage}&size=${this.size}`).then((data) => {
             this.deletePageAndSizeInConfig()
             let cdata = data
-            this.data = window._.get(cdata, fetchDataFormat.page.content)
-            this.data.map((item) => { // 回显勾选项
+            let res = window._.get(cdata, /* ${fetchDataFormat.data}. */`${fetchDataFormat.page.content}`)
+            this.handledData = res
+            this.handledData.map((item) => { // 回显勾选项
               if (this.ids.includes(item['id'])) {
                 item._checked = true
               }
             })
-            this.total = window._.get(cdata, fetchDataFormat.page.total)
+            this.total = window._.get(cdata, /* ${fetchDataFormat.data}. */`${fetchDataFormat.page.total}`)
             this.emitTotal(this.total)
             if (this.fetchConfig.callback) {
-              this.fetchConfig.callback(data) // 回调
+              this.fetchConfig.callback(res) // 回调
             }
           }).catch((error) => {
             this.$Message.error(`请求错误；错误信息：${error}`)
@@ -471,9 +485,10 @@
           this.$http.get(this.url + paramsStr).then((data) => {
             this.deletePageAndSizeInConfig()
             let cdata = data
-            this.data = cdata
+            let res = window._.get(cdata, fetchDataFormat.data, cdata)
+            this.handledData = res
             if (this.fetchConfig.callback) {
-              this.fetchConfig.callback(data) // 回调
+              this.fetchConfig.callback(res) // 回调
             }
           }).catch((error) => {
             this.$Message.error(`请求错误；错误信息：${error}`)
@@ -661,7 +676,6 @@
       /* 保存keysToSave */
       handleRightDataChange (data) {
         let keysToSave = []
-        console.log(data)
         data.map((item, index, array) => {
           if (item) { // 过滤添加一个空的填充宽度用column导致多出一个undefined项
             keysToSave.push(item.key)
@@ -681,22 +695,7 @@
         this.filteredColumns = orderedColumns // 被筛选的的columns
       },
       exportData (event, type = 1) {
-        // if (type === 1) {
-        //   this.$refs.table.exportCsv({
-        //     filename: '原始数据'
-        //   })
-        // } else if (type === 2) {
-        //   this.$refs.table.exportCsv({
-        //     filename: '排序和过滤后的数据',
-        //     original: false
-        //   })
-        // } else if (type === 3) {
-        //   this.$refs.table.exportCsv({
-        //     filename: '自定义数据',
-        //     columns: this.columns8.filter((col, index) => index < 4),
-        //     data: this.data7.filter((data, index) => index < 4)
-        //   })
-        // }
+        // 导出excel
       },
       formatColumnsItemLabel (item) {
         return (item.title || (item.type === 'selection' ? '多选' : '--'))

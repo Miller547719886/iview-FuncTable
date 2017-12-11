@@ -14,8 +14,9 @@
  *  data['data']['content']中寻找当前页内容。
  */
 export default {
+  data: 'data',
   page: { // 分页依赖
-    total: 'totalElements', // 返回的数据总量的key
+    total: 'total', // 返回的数据总量的key
     content: 'content' // 返回的表格数据
   }
 }

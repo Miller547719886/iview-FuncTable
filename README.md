@@ -2,7 +2,11 @@
 基于iview框架的功能表格组件
 
 目前支持的功能：表头筛选/查询/分页/批量操作/刷新
-    
+
+## 更新记录
+
+[更新记录](./update.md)
+
 ### 演示
 
 > [demo](http://rufer.site/iview-FuncTable/dist/)
@@ -37,6 +41,7 @@
 <!-- template -->
 <func-table
   id="table-001"
+  :refreshable="refreshable"
   :columns="columns"
   :pageConfig="pageConfig"
   :searchConfig="searchConfig"
@@ -54,6 +59,7 @@ export default {
   data () {
     return {
       msg: '请求中。。。', // 这个不是必须的，只是为了展示回调的功能。。。
+      refreshable: true, // 可选，配置可否刷新。
       pageConfig: { // 值为fasle则无分页功能。
         showSizer: true, // 配置iview中的shiw-sizer。
         showElevator: true, // 配置iview中的shiw-elevator。
@@ -111,3 +117,6 @@ export default {
 
     只要修改fetchConfig中的任意配置即可。（因为组件中会深度监听该对象，任何修改都会触发请求。）
 
+## 待完善功能
+
+1. check模式的表头筛选不能读取本地存储
