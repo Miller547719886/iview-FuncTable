@@ -38,6 +38,7 @@ export default {
   data () {
     return {
       msg: '请求中。。。',
+      refreshable: true,
       columns: [ // 必填
         {
             type: 'selection',

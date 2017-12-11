@@ -2,7 +2,7 @@ var FuncTable = {
   data () {
     return {
       /* 功能表格配置项 */
-      refreshable: false,
+      refreshable: false, // 刷新配置
       pageConfig: {
         showSizer: true, // 配置iview中的show-sizer。
         showElevator: true, // 配置iview中的show-elevator。
@@ -16,7 +16,7 @@ var FuncTable = {
         key: 'id', // 查询请求依赖的参数。
         maxlength: 20 // 查询框支持的最大长度。
       },
-      filterConfig: false,
+      filterConfig: false, // 筛选配置
       fetchConfig: {} // 必填（初始化时为空对象，在load方法内填充配置）。
     }
   },
