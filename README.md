@@ -49,13 +49,17 @@
   v-model="fetchConfig"></func-table>
 ```
 
+在mixin中，默认已经配置好了初始化的data与methods，所以在使用时只需要导入该mixin并覆盖你所需要自定义的data与methods即可。下例展示了所有的data与methods配置项。
+
 ```javascript
 /* script */
 import FuncTable from '@/components/FuncTable/index' // 首先导入组件
+import FuncTableMixin from '@/components/FuncTable/mixin' // 导入默认data与methods
 export default {
   components: {
     FuncTable // 记得在这里声明一下
   },
+  mixins: [FuncTableMixin],
   data () {
     return {
       msg: '请求中。。。', // 这个不是必须的，只是为了展示回调的功能。。。
