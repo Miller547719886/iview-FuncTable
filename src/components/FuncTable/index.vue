@@ -361,7 +361,7 @@
       // 获取当前表格对应的全部columns与targetKeys
     },
     mounted () {
-      if (this.isCheckMode) {
+      if (this.isCheckMode || this.isTransferMode) {
         this.fillTableColumns()
       }
     },
