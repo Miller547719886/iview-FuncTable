@@ -5,7 +5,6 @@ var FuncTable = {
       refreshable: false,
       pageConfig: {
         size: 'small', // page样式精简
-        pageSize: 10, // 每页容积
         showSizer: true, // 配置iview中的show-sizer。
         showElevator: true, // 配置iview中的show-elevator。
         pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。

@@ -72,8 +72,9 @@ export default {
       msg: '请求中。。。', // 这个不是必须的，只是为了展示回调的功能。。。
       refreshable: true, // 可选，配置可否刷新。
       pageConfig: { // 值为fasle则无分页功能。
-        showSizer: true, // 配置iview中的shiw-sizer。
-        showElevator: true, // 配置iview中的shiw-elevator。
+        size: 'small', // 分页样式精简
+        showSizer: true, // 配置iview中的show-sizer。
+        showElevator: true, // 配置iview中的show-elevator。
         pagePosition: 'right' // 分页位置，提供'left', 'middle', 'right'三种模式。
       },
       columns: [{ // 必填，除了按照普通columns填写，开头项与末尾项中可添加filterDisable选项，用于配置筛选功能无法配置的项，值为'before','after'。
