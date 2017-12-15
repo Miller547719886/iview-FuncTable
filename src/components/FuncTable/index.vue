@@ -88,7 +88,7 @@
           :context="context"
           :no-data-text="noDataText"
           :no-filtered-data-text="noFilteredDataText"
-          :data="handledData"
+          :data="data"
           :disabled-hover="disabledHover"
           :loading="loading"
           @on-current-change="emitCurrentChange"
@@ -340,14 +340,6 @@
         })
         return disabledSelections
       },
-      handledData: {
-        get () {
-          return this.data
-        },
-        set (v) {
-          this.$emit('on-data-change', v)
-        }
-      },
       // 筛选相关
       checkList () {
         let list = Object.values(this.columns).map((item) => {
@@ -365,6 +357,17 @@
       }
     },
     watch: {
+      columns: {
+        handler (v) {
+          this.filteredColumns = v
+          // this.refresh()
+          // this.clearStorage() // 强制清空
+          // if (this.isCheckMode || this.isTransferMode) {
+          //   this.fillTableColumns()
+          // }
+        },
+        deep: true
+      },
       selectedData (v) {
         this.emitSelectionChange(v)
       },
@@ -485,7 +488,10 @@
       },
       refresh () {
         this.resetSelectedData()
-        this.$set(this.fetchConfig.params, 'page', 1)
+        if (this.pageConfig && this.page !== 1) {
+          this.$set(this.fetchConfig.params, 'page', 1)
+        }
+        this.$set(this.fetchConfig, 'refreshFlag', this.fetchConfig.refreshFlag ? !this.fetchConfig.refreshFlag : true) // 触发刷新
       },
       deletePageAndSizeInConfig () {
         // 该方法不会触发watch监听
@@ -528,12 +534,12 @@
             this.deletePageAndSizeInConfig()
             let cdata = data
             let res = window._.get(cdata, fetchDataFormat.page.content)
-            this.handledData = res
-            this.handledData.map((item) => { // 回显勾选项
+            res.map((item) => { // 回显勾选项
               if (this.ids.includes(item['id'])) {
                 item._checked = true
               }
             })
+            this.$emit('on-data-change', res) // 触发父组件data变化
             this.total = window._.get(cdata, fetchDataFormat.page.total)
             this.emitTotal(this.total)
             if (this.fetchConfig.callback) {
@@ -550,7 +556,7 @@
             this.deletePageAndSizeInConfig()
             let cdata = data
             let res = window._.get(cdata, fetchDataFormat.data, cdata)
-            this.handledData = res
+            this.$emit('on-data-change', res) // 触发父组件data变化
             if (this.fetchConfig.callback) {
               this.fetchConfig.callback(res) // 回调
             }
