@@ -52,16 +52,7 @@
           <Checkbox-group ref="checkList" class="mt-10 f-l"
             v-show="isCheckMode"
             v-model="tableColumnsChecked"
-            @on-change="fillTableColumns"
-            @on-current-change="CurrentChange"
-            @on-select="Select"
-            @on-select-cancel="SelectCancel"
-            @on-select-all="SelectAll"
-            @on-selection-change="SelectionChange"
-            @on-sort-change="SortChange"
-            @on-row-click="RowClick"
-            @on-row-dblclick="RowDblclick"
-            @on-expand="Expand">
+            @on-change="fillTableColumns">
             <Checkbox :ref="'check' + index"
               v-for="(item, index) in checkList"
               :disabled="checkDisabled(item)"
@@ -86,9 +77,31 @@
         <Table stripe ref="table"
           :columns="filteredColumns"
           :id="id"
+          :size="size"
+          :width="width"
+          :height="height"
+          :stripe="stripe"
+          :border="border"
+          :show-header="showHeader"
+          :highlight-row="highlightRow"
+          :row-class-name="rowClassName"
+          :context="context"
+          :no-data-text="noDataText"
+          :no-filtered-data-text="noFilteredDataText"
           :data="handledData"
-          @on-selection-change="setselectedData"
-          @on-current-change="emitCurrentChange">
+          :disabled-hover="disabledHover"
+          :loading="loading"
+          @on-current-change="emitCurrentChange"
+          @on-select="emitSelect"
+          @on-select-cancel="emitSelectCancel"
+          @on-select-all="emitSelectAll"
+          @on-selection-change="setSelectedData"
+          @on-sort-change="emitSortChange"
+          @on-filter-change="emitFilterChange"
+          @on-row-click="emitRowClick"
+          @on-row-dblclick="emitRowDblclick"
+          @on-expand="emitExpand"
+          >
         </Table>
         <!-- 加载中 -->
         <Spin size="large"
@@ -107,10 +120,11 @@
       v-if="pageConfig"
       :style="setPagePosition(pageConfig.pagePosition)">
       <Page ref="page" style="float: none; display: inline-block"
+        :size="pageConfig.size || 'small'"
         :total="total"
-        :page-size="size"
-        :show-elevator="pageConfig.showElevator"
-        :show-sizer="pageConfig.showSizer"
+        :page-size="pageSize"
+        :show-elevator="pageConfig.showElevator || true"
+        :show-sizer="pageConfig.showSizer || true"
         show-total
         @on-change="pageChange"
         @on-page-size-change="pageSizeChange"></Page>
@@ -147,28 +161,89 @@
       CTransfer
     },
     props: {
+      data: {
+        type: Array,
+        default () {
+          return []
+        }
+      },
+      columns: {
+        type: Array,
+        default () {
+          return []
+        }
+      },
+      size: {
+        validator (value) {
+          return window.util.oneOf(value, ['small', 'large', 'default'])
+        }
+      },
+      width: {
+        type: [Number, String]
+      },
+      height: {
+        type: [Number, String]
+      },
+      stripe: {
+        type: Boolean,
+        default: false
+      },
+      border: {
+        type: Boolean,
+        default: false
+      },
+      showHeader: {
+        type: Boolean,
+        default: true
+      },
+      highlightRow: {
+        type: Boolean,
+        default: false
+      },
+      rowClassName: {
+        type: Function,
+        default () {
+          return ''
+        }
+      },
+      context: {
+        type: Object
+      },
+      noDataText: {
+        type: String
+      },
+      noFilteredDataText: {
+        type: String
+      },
+      disabledHover: {
+        type: Boolean
+      },
+      loading: {
+        type: Boolean,
+        default: false
+      },
       // 勾选的id
       ids: {
         type: [Array],
-        require: true,
+        // require: true,
         default: () => []
       },
       /* 可否刷新|选填 */
       refreshable: {
         type: [Boolean],
-        require: false,
+        // require: false,
         default: true
       },
       /* 编辑配置|选填 */
       editConfig: {
         type: [Object, Boolean],
-        require: false,
+        // require: false,
         default: false
       },
       /* 查询配置|选填 */
       searchConfig: {
         type: [Object, Boolean],
-        require: false,
+        // require: false,
         default: false
         // () => ({
         //   key: 'name',
@@ -179,7 +254,7 @@
       /* 分页配置|选填 */
       pageConfig: {
         type: [Object, Boolean],
-        require: false,
+        // require: false,
         default: false
         // () => ({
         //   pagePosition: 'right', // 'left', 'middle', 'right'
@@ -190,7 +265,7 @@
       /* 筛选配置|选填 */
       filterConfig: {
         type: [Object, Boolean],
-        require: false,
+        // require: false,
         default: false
         // () => ({
         //   mode: 'transfer' // 'transfer', 'check'
@@ -199,25 +274,14 @@
       /* http请求配置|必填 */
       fetchConfig: {
         type: Object,
-        require: true,
+        // require: true,
         default: () => ({})
       },
       /* 表格id(本地存储用)|选填 */
       id: {
         type: String,
-        require: false,
+        // require: false,
         default: ''
-      },
-      data: {
-        type: Array,
-        require: false,
-        default: () => []
-      },
-      /* 表格列配置|必填 */
-      columns: {
-        type: Array,
-        require: true,
-        default: () => []
       }
     },
     data () {
@@ -225,7 +289,7 @@
         selectedData: [],
         spin: false,
         /* 分页相关 */
-        size: 10,
+        pageSize: 10,
         page: 1,
         total: 0,
         url: '',
@@ -392,7 +456,7 @@
       },
       /* 改变页面容量，重新加载 */
       pageSizeChange (size) {
-        this.size = size
+        this.pageSize = size
         this.load()
       },
       setTotal (val) {
@@ -426,7 +490,7 @@
       deletePageAndSizeInConfig () {
         // 该方法不会触发watch监听
         delete this.fetchConfig.params.page
-        delete this.fetchConfig.params.size
+        delete this.fetchConfig.params.pageSize
       },
       /**
        * 加载第n页请求
@@ -449,8 +513,8 @@
               this.page = config.params.page
               this.switchSign(config.params.page)
             }
-            if (window._.isInteger(config.params.size)) {
-              this.size = config.params.size
+            if (window._.isInteger(config.params.pageSize)) {
+              this.pageSize = config.params.pageSize
             }
           }
         }
@@ -460,17 +524,17 @@
         this.spin = true // 展示加载中
         if (this.pageConfig) {
           // 分页请求
-          this.$http.get(this.url + paramsStr + (paramsStr ? `&` : `?`) + `page=${newPage}&size=${this.size}`).then((data) => {
+          this.$http.get(this.url + paramsStr + (paramsStr ? `&` : `?`) + `page=${newPage}&size=${this.pageSize}`).then((data) => {
             this.deletePageAndSizeInConfig()
             let cdata = data
-            let res = window._.get(cdata, /* ${fetchDataFormat.data}. */`${fetchDataFormat.page.content}`)
+            let res = window._.get(cdata, fetchDataFormat.page.content)
             this.handledData = res
             this.handledData.map((item) => { // 回显勾选项
               if (this.ids.includes(item['id'])) {
                 item._checked = true
               }
             })
-            this.total = window._.get(cdata, /* ${fetchDataFormat.data}. */`${fetchDataFormat.page.total}`)
+            this.total = window._.get(cdata, fetchDataFormat.page.total)
             this.emitTotal(this.total)
             if (this.fetchConfig.callback) {
               this.fetchConfig.callback(res) // 回调
@@ -496,19 +560,6 @@
             this.spin = false // 关闭加载中
           })
         }
-      },
-      resetSelectedData () {
-        this.selectedData = []
-      },
-      setselectedData (data) {
-        this.selectedData = data
-      },
-      /* 选中数据 */
-      emitSelectionChange (data) {
-        this.$emit('on-selection-change', data)
-      },
-      emitCurrentChange (currentRow, oldCurrentRow) {
-        this.$emit('on-current-change', currentRow, oldCurrentRow)
       },
       /**
        * todo 转发table监听的event：
@@ -573,32 +624,42 @@
       toggleFav (index) {
         this.tableData2[index].fav = this.filteredData[index].fav === 0 ? 1 : 0
       },
-      CurrentChange (msg) {
-
+      resetSelectedData () {
+        this.selectedData = []
       },
-      Select (msg) {
-
+      setSelectedData (data) {
+        this.selectedData = data
       },
-      SelectCancel (msg) {
-
+      /* emit事件 */
+      emitCurrentChange (currentRow, oldCurrentRow) {
+        this.$emit('on-current-change', currentRow, oldCurrentRow)
       },
-      SelectAll (msg) {
-
+      emitSelect (selection, row) {
+        this.$emit('on-select', selection, row)
       },
-      SelectionChange (msg) {
-
+      emitSelectCancel (selection, row) {
+        this.$emit('on-select-cancel', selection, row)
       },
-      SortChange (msg) {
-
+      emitSelectAll (selection) {
+        this.$emit('on-select-all', selection)
       },
-      RowClick (msg) {
-
+      emitSelectionChange (selection) {
+        this.$emit('on-selection-change', selection)
       },
-      RowDblclick (msg) {
-
+      emitSortChange (column, key, order) {
+        this.$emit('on-sort-change', column, key, order)
       },
-      Expand (msg) {
-
+      emitFilterChange (currentCol) {
+        this.$emit('on-filter-change', currentCol)
+      },
+      emitRowClick (currentRow, index) {
+        this.$emit('on-row-click', currentRow, index)
+      },
+      emitRowDblclick (currentRow, index) {
+        this.$emit('on-row-dblclick', currentRow, index)
+      },
+      emitExpand (row, status) {
+        this.$emit('on-expand', row, status)
       },
       triggerClick (v) {
         let checkValue = window._.reject(v, this.isDisabled)[0]
