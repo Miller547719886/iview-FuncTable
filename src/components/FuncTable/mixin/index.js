@@ -31,9 +31,13 @@ var FuncTable = {
         }
       }
     },
-    handleOnSelChangeFT (data) {
+    handleOnSelChangeFT (data, key) {
       let newIds = data.map((item, index, array) => {
-        return item.id
+        if (key) {
+          return item[key] // 自定义标识
+        } else {
+          return item.id
+        }
       })
       this.ids.push(...newIds) // 合并多页勾选的id
       this.ids = _.uniq(this.ids) // 去重
