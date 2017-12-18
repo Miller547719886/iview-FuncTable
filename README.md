@@ -34,6 +34,7 @@
 3. 支持搜索（100%）
 4. 支持批量操作（100%）
 5. 支持查询(100%)
+6. 支持iview中原生支持的所有table事件与属性，详情见[iview > table](https://www.iviewui.com/components/table)（100%）
 
 ### 用法
 
