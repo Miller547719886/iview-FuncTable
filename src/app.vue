@@ -1,27 +1,29 @@
 <template>
-  <div id="app" style="width: 80%; margin: 50px auto">
-      <button-group class="mb-10">
-          <Button @click="switchCMode">check模式</Button>
-          <Button @click="switchTMode">transfer模式</Button>
-      </button-group>
-      <func-table
-        id="table-001"
-        :ids="ids"
-        :data="data"
-        :refreshable="refreshable"
-        :columns="columns"
-        :pageConfig="pageConfig"
-        :searchConfig="searchConfig"
-        :filterConfig="filterConfig"
-        @on-data-change="handleOnDataChange"
-        @on-selection-change="handleOnSelChange"
-        v-model="fetchConfig">
-        <div slot="batch-operation">
-          <Button @click="handlerAdd">添加</Button>
-          <Button @click="handlerBatchDel">删除</Button>
+    <div id="app" style="width: 80%; margin: 50px auto">
+        <div class="mb-10">
+            <Button @click="handleBackPage">后端分页</Button>
+            <Button @click="handleFrontPage">前端分页</Button>
+            <Button @click="handleNoPage">不分页</Button>
         </div>
-      </func-table>
-  </div>
+        <func-table
+            v-if="showTable"
+            id="table-001"
+            :ids="ids"
+            :data="data"
+            :refreshable="refreshable"
+            :columns="columns"
+            :pageConfig="pageConfig"
+            :searchConfig="searchConfig"
+            :filterConfig="filterConfig"
+            @on-data-change="handleOnDataChangeFT"
+            @on-selection-change="handleOnSelChangeFT"
+            v-model="fetchConfig">
+            <div slot="batch-operation">
+                <Button @click="handlerAdd">添加</Button>
+                <Button @click="handlerBatchDel">删除</Button>
+            </div>
+        </func-table>
+    </div>
 </template>
 
 <script>
@@ -39,9 +41,8 @@ export default {
     return {
       msg: '请求中。。。',
       refreshable: true,
-      filterConfig: {
-        mode: 'transfer'    
-      },
+      fetchURL: '/backPage',
+      CRUDKey: 'id',
       columns: [ // 必填
         {
             type: 'selection',
@@ -265,16 +266,53 @@ export default {
                 ]);
             }
         }
-      ]
+      ],
+      showTable: true,
+      pageBackConfig: {
+        mode: 'back'
+      },
+      pageFrontConfig: {
+        mode: 'front'
+      },
+      pageNoConfig: false
+    }
+  },
+  watch: {
+    fetchURL () {
+      this.resetTable()
+    },
+    data (v) {
+      console.log(v)
     }
   },
   created () {
     loginUtils.setUserInfo({ account: 'admin' }) // 筛选配置保存到localstorage的依赖，可以不配置。
   },
   mounted () {
-    this.load() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
+    this.loadFT() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
   },
   methods: {
+    resetTable () {
+      this.showTable = false
+      this.$nextTick(() => {
+        this.showTable = true
+        this.$nextTick(() => {
+            this.loadFT()
+        })
+      })
+    },
+    handleBackPage () {
+      this.pageConfig = window._.cloneDeep(this.pageBackConfig)
+      this.fetchURL = '/backPage'
+    },
+    handleFrontPage () {
+      this.pageConfig = window._.cloneDeep(this.pageFrontConfig)
+      this.fetchURL = '/frontPage'
+    },
+    handleNoPage () {
+      this.pageConfig = this.pageNoConfig
+      this.fetchURL = '/noPage'
+    },
     handleOnDataChange (data) {
       this.data = data // 改变此处的data才能让table内的data变化
     },
@@ -290,9 +328,10 @@ export default {
     handlerBatchDel () {
       alert(`要删除的项id为：${ (this.ids.length ? this.ids : '--') }`)
     },
-    load () { // 通过改变http请求的配置(url,参数)自动触发组件内请求事件。
+    loadFT () { // 通过改变http请求的配置(url,参数)自动触发组件内请求事件。
+      const url = this.fetchURL
       this.fetchConfig = { // 请按照此格式配置！
-        url: '/account', // 请求url。
+        url, // 请求url。
         params: {}, // 参数。（不需要配置page与size）
         callback: (data) => { // 请求成功回调。（请务必用箭头函数修正this指向！）
           // data.content.length = 0
@@ -300,14 +339,19 @@ export default {
         }
       }
     },
-    handleOnSelChange (data) { // 根据返回的勾选的data合并ids
-        let newIds = data.map((item, index, array) => {
-            return item.id
-        })
-        this.ids.push(...newIds) // 合并多页勾选的id
-        this.ids = _.uniq(this.ids) // 去重
-        console.log(this.ids, data)
-    }
+    // handleOnSelChange (data) { // 根据返回的勾选的data合并ids
+    //     let newIds = data.map((item, index, array) => {
+    //         return item.id
+    //     })
+    //     this.ids.map((item, index, array) => {
+    //         if (!newIds.includes(item)) { // 如果新数组不包含源id
+    //         array.splice(index, 1) // 代表删除了该id
+    //         }
+    //     })
+    //     this.ids.push(...newIds) // 合并多页勾选的id
+    //     this.ids = _.uniq(this.ids) // 去重
+    //     console.log(this.ids, data)
+    // }
   }
 }
 </script>

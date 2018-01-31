@@ -3,14 +3,14 @@
     <!-- 批量操作组 + 查询 -->
     <div class="clearfix func-table-top mb-10">
       <!-- 批量操作组（slot） -->
-      <div class="func-table-batch-operation f-l">
+      <div class="func-table-batch-operation f-l" :style="{ width: searchConfig ? 'auto' : '100%' }">
         <slot name="batch-operation">
           <!-- <Button>添加</Button>
           <Button>删除</Button> -->
         </slot>
       </div>
       <div class="func-table-refresh f-l ml-5" v-show="refreshable">
-        <Button @click="refresh">刷新</Button>
+        <Button icon="refresh" @click="refresh">刷新</Button>
       </div>
       <form class="func-table-search f-r"
         @keypress.enter.prevent="doSearch(searchInput)" v-if="searchConfig">
@@ -75,6 +75,7 @@
       </div>
       <div class="topPosition spin-outer">
         <Table stripe ref="table"
+          class="f-14"
           :columns="filteredColumns"
           :id="id"
           :size="size"
@@ -140,7 +141,7 @@
    * @prop pageConfig 分页配置 { showSizer: true, pagePosition: 'right' } | false
    * @prop id 表格id(用于保存筛选配置) 'table-001'
    * ps：
-   * 1. 父组件中的回调函数要用.bind(this)方法修复this指向问题。
+   * 1. 父组件中的回调函数要用箭头函数修复this指向问题。
    * 2. transfer里的key定义规则：columes中存在key则为key，不存在则为type。
    * 3. 每个table都需要用id来标记，用途是获取本地存储对应的配置对象。
    */
@@ -225,25 +226,25 @@
       // 勾选的id
       ids: {
         type: [Array],
-        // require: true,
+        // required: true,
         default: () => []
       },
       /* 可否刷新|选填 */
       refreshable: {
         type: [Boolean],
-        // require: false,
+        // required: false,
         default: true
       },
       /* 编辑配置|选填 */
       editConfig: {
         type: [Object, Boolean],
-        // require: false,
+        // required: false,
         default: false
       },
       /* 查询配置|选填 */
       searchConfig: {
         type: [Object, Boolean],
-        // require: false,
+        // required: false,
         default: false
         // () => ({
         //   key: 'name',
@@ -254,7 +255,7 @@
       /* 分页配置|选填 */
       pageConfig: {
         type: [Object, Boolean],
-        // require: false,
+        // required: false,
         default: false
         // () => ({
         //   pagePosition: 'right', // 'left', 'middle', 'right'
@@ -265,7 +266,7 @@
       /* 筛选配置|选填 */
       filterConfig: {
         type: [Object, Boolean],
-        // require: false,
+        // required: false,
         default: false
         // () => ({
         //   mode: 'transfer' // 'transfer', 'check'
@@ -274,13 +275,13 @@
       /* http请求配置|必填 */
       fetchConfig: {
         type: Object,
-        // require: true,
+        // required: true,
         default: () => ({})
       },
       /* 表格id(本地存储用)|选填 */
       id: {
         type: String,
-        // require: false,
+        // required: false,
         default: ''
       }
     },
@@ -288,6 +289,7 @@
       return {
         selectedData: [],
         spin: false,
+        dataBeforeFilter: [],
         /* 分页相关 */
         pageSize: 10,
         page: 1,
@@ -315,7 +317,9 @@
         keysToSave: [],
         configColumnsKey: null,
         /* 搜索相关 */
-        searchInput: ''
+        searchInput: '',
+        /* 刷新相关 */
+        refreshTable: true
       }
     },
     computed: {
@@ -354,6 +358,9 @@
       },
       isTransferMode () {
         return this.filterConfig.mode === 'transfer'
+      },
+      isFrontPage () { // 前端分页
+        return (this.pageConfig.mode === 'front')
       }
     },
     watch: {
@@ -418,8 +425,12 @@
       },
       fetchConfig: {
         handler (v) {
+          this.refreshTable = true
+          if (this.pageConfig) {
+            this.resetPage()
+          }
           this.$emit('on-fetch-config-change', v)
-          this.load(v) // 监听fetchConfig数据变化自动请求
+          this.load() // 监听fetchConfig数据变化自动请求
         },
         deep: true
       }
@@ -449,18 +460,28 @@
             // _style = { 'float': 'left' }
             _style = { 'textAlign': 'left' }
             break
+          default:
+            _style = { 'textAlign': 'right' }
         }
         return _style
       },
       /* 调用加载第n页方法 */
       pageChange (page) {
         this.page = page
-        this.load()
+        if (this.isFrontPage) {
+          this.filterInFront()
+        } else {
+          this.load()
+        }
       },
       /* 改变页面容量，重新加载 */
       pageSizeChange (size) {
         this.pageSize = size
-        this.load()
+        if (this.isFrontPage) {
+          this.filterInFront()
+        } else {
+          this.load()
+        }
       },
       setTotal (val) {
         this.total = val
@@ -476,7 +497,7 @@
               str += ((i === 0) ? `?` : `&`) + `${k}=${encodeURIComponent(v)}`
               i++
             } else {
-              console.log('异常参数：' + k, '异常参数值：' + (typeof v === 'string' && '（空字符串）'))
+              // console.warn('异常参数：' + k, '异常参数值：' + (typeof v === 'string' && '（空字符串）'))
             }
           }
         }
@@ -488,6 +509,7 @@
       },
       refresh () {
         this.resetSelectedData()
+        this.refreshTable = true
         if (this.pageConfig && this.page !== 1) {
           this.$set(this.fetchConfig.params, 'page', 1)
         }
@@ -525,47 +547,83 @@
           }
         }
         if (this.updateSearchKey()) { return false }
-        let newPage = common.analysisPage(this.page)
         let paramsStr = this.params2Str(this.params)
         this.spin = true // 展示加载中
-        if (this.pageConfig) {
-          // 分页请求
-          this.$http.get(this.url + paramsStr + (paramsStr ? `&` : `?`) + `page=${newPage}&size=${this.pageSize}`).then((data) => {
-            this.deletePageAndSizeInConfig()
-            let cdata = data
-            let res = window._.get(cdata, fetchDataFormat.page.content)
-            res.map((item) => { // 回显勾选项
-              if (this.ids.includes(item['id'])) {
-                item._checked = true
-              }
-            })
-            this.$emit('on-data-change', res) // 触发父组件data变化
-            this.total = window._.get(cdata, fetchDataFormat.page.total)
-            this.emitTotal(this.total)
-            if (this.fetchConfig.callback) {
-              this.fetchConfig.callback(res) // 回调
+        if (this.pageConfig) { // 前端分页or后端分页
+          if (this.isFrontPage) { // 前端分页
+            if (this.refreshTable) { // 发送请求
+              this.fetchWithoutPage(paramsStr)
+            } else { // 不请求
+              this.filterDataByPage()
             }
-          }).catch((error) => {
-            this.$Message.error(`请求错误；错误信息：${error}`)
-          }).then(() => {
-            this.spin = false // 关闭加载中
-          })
-        } else {
-          // 不分页请求
-          this.$http.get(this.url + paramsStr).then((data) => {
-            this.deletePageAndSizeInConfig()
-            let cdata = data
-            let res = window._.get(cdata, fetchDataFormat.data, cdata)
-            this.$emit('on-data-change', res) // 触发父组件data变化
-            if (this.fetchConfig.callback) {
-              this.fetchConfig.callback(res) // 回调
-            }
-          }).catch((error) => {
-            this.$Message.error(`请求错误；错误信息：${error}`)
-          }).then(() => {
-            this.spin = false // 关闭加载中
-          })
+          } else { // 后端分页
+            this.fetchWithPage(paramsStr)
+          }
+        } else { // 不分页
+          this.fetchWithoutPage(paramsStr)
         }
+      },
+      /* 前端分页 */
+      filterDataByPage () {
+        const dataChunks = window._.chunk(this.dataBeforeFilter, this.pageSize)
+        const res = dataChunks[this.page - 1]
+        this.$nextTick(() => {
+          this.$emit('on-data-change', res)
+          this.spin = false
+        })
+      },
+      /* 分页请求 */
+      fetchWithPage (paramsStr) {
+        let newPage = common.analysisPage(this.page)
+        this.$http.get(this.url + paramsStr + (paramsStr ? `&` : `?`) + `page=${newPage}&size=${this.pageSize}`).then((data) => {
+          if (this.fetchConfig.callback) {
+            this.fetchConfig.callback(data) // 回调
+          }
+          this.refreshTable = false
+          this.deletePageAndSizeInConfig()
+          let cdata = data
+          let res = window._.get(cdata, fetchDataFormat.page.content)
+          res.map((item) => { // 回显勾选项
+            if (this.ids.includes(item['id'])) {
+              item._checked = true
+            }
+          })
+          this.updateDataBeforeFilter(res) // 保存筛选前数据
+          this.$emit('on-data-change', res) // 触发父组件data变化
+          this.total = window._.get(cdata, fetchDataFormat.page.total)
+          this.emitTotal(this.total)
+        }).catch((error) => {
+          this.$Message.error(`请求错误；错误信息：${error}`)
+        }).then(() => {
+          this.spin = false // 关闭加载中
+        })
+      },
+      /* 不分页请求 */
+      fetchWithoutPage (paramsStr) {
+        this.$http.get(this.url + paramsStr).then((data) => {
+          this.refreshTable = false
+          this.deletePageAndSizeInConfig()
+          let cdata = data
+          let res = window._.get(cdata, fetchDataFormat.data, cdata)
+          this.updateDataBeforeFilter(res) // 保存筛选前数据
+          if (this.fetchConfig.callback) {
+            this.fetchConfig.callback(data) // 回调(由于后端返回的数据结构可能不按照table要求的数据格式返回，此处可能会洗数据，所以回调在部分操作之后执行以实现覆盖。)
+          }
+          if (this.isFrontPage) {
+            this.total = this.dataBeforeFilter.length
+            this.filterDataByPage()
+          } else {
+            this.$emit('on-data-change', res) // 触发父组件data变化
+          }
+        }).catch((error) => {
+          this.$Message.error(`请求错误；错误信息：${error}`)
+        }).then(() => {
+          this.spin = false // 关闭加载中
+        })
+      },
+      /* 同步筛选前data与请求返回的data */
+      updateDataBeforeFilter (data) {
+        this.dataBeforeFilter = data
       },
       /**
        * todo 转发table监听的event：
@@ -672,7 +730,7 @@
         let index = this.checkList.indexOf(checkValue)
         let label = this.$refs['check' + index][0].$el
         let input = label.querySelectorAll('input')[0]
-        dom.trigger('click', input)
+        dom.trigger(input, 'click')
         this.$refs['check' + index][0].$forceUpdate()
       },
       isDisabled (n) {
@@ -773,20 +831,41 @@
       // 重置页数
       resetPage () {
         this.page = 1
+        this.$refs['page'].currentPage = 1
       },
       /* ----- 查询相关 ----- */
       doSearch (val) {
-        this.resetPage()
-        this.updateSearchKey()
+        if (this.pageConfig && !this.isFrontPage) { // 请求查找
+          this.resetPage()
+          this.updateSearchKey() 
+        } else { // 前端筛选（包括分页不分页
+          if (this.isFrontPage && this.page !== 1) {
+            this.resetPage()
+          } else {
+            this.filterInFront()
+          }
+        }
+      },
+      filterInFront () {
+        const filteredData = this.dataBeforeFilter.filter((item) => {
+          return String(item[this.searchConfig.key]).includes(this.searchInput)
+        })
+        if (this.isFrontPage) {
+          this.total = filteredData.length
+          this.$emit('on-data-change', window._.chunk(filteredData, this.pageSize)[this.page - 1])
+        } else {
+          this.$emit('on-data-change', filteredData)
+        }
       },
       updateSearchKey () {
-        let hasTriggeredLoad = false
-        if (!this.searchConfig) { return hasTriggeredLoad }
-        if (this.fetchConfig.params[this.searchConfig.key] !== this.searchInput) {
-          this.$set(this.fetchConfig.params, this.searchConfig.key, this.searchInput) // 设置fetchConfig中用于查询的参数键值对
-          hasTriggeredLoad = true
+        let triggerLoad = false
+        const searchKey = this.searchConfig.key
+        if (!this.searchConfig) { return triggerLoad } // 没有搜索选项
+        if (searchKey && (this.fetchConfig.params[searchKey] !== this.searchInput)) {
+          this.$set(this.fetchConfig.params, searchKey, this.searchInput) // 设置fetchConfig中用于查询的参数键值对
+          triggerLoad = true
         }
-        return hasTriggeredLoad
+        return triggerLoad
       }
     }
   }

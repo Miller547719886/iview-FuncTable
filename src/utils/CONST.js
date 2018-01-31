@@ -10,10 +10,6 @@ export default () => {
     TOKEN_KEY: 'X-Auth-Token',
     CONFIG_COLUMNS_KEY: 'CONFIG_COLUMNS_KEY'
   }
-  window.$HTTP = {
-    SUCCESS: 0,
-    FAIL: 999
-  }
   window.common = common
   window.dom = dom
 }
