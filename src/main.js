@@ -9,7 +9,7 @@ import $http from '@/api/index'
 
 CONST()
 Vue.use(VueAxios, $http)
-Vue.use(iView);
+// Vue.use(iView);
 
 new Vue({
     el: '#app',

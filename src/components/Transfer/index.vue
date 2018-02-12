@@ -19,8 +19,12 @@
 <script>
   import common from '@/utils/common'
   import dom from '@/utils/dom'
+  import {Transfer} from 'iview'
   export default {
     name: 'CTransfer',
+    components: {
+      Transfer
+    },
     model: {
       prop: 'targetKeys',
       event: 'on-target-keys-change'

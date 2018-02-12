@@ -1,9 +1,9 @@
 <template>
     <div id="app" style="width: 80%; margin: 50px auto">
         <div class="mb-10">
-            <Button @click="handleBackPage">后端分页</Button>
-            <Button @click="handleFrontPage">前端分页</Button>
-            <Button @click="handleNoPage">不分页</Button>
+            <i-button @click="handleBackPage">后端分页</i-button>
+            <i-button @click="handleFrontPage">前端分页</i-button>
+            <i-button @click="handleNoPage">不分页</i-button>
         </div>
         <func-table
             v-if="showTable"
@@ -19,8 +19,8 @@
             @on-selection-change="handleOnSelChangeFT"
             v-model="fetchConfig">
             <div slot="batch-operation">
-                <Button @click="handlerAdd">添加</Button>
-                <Button @click="handlerBatchDel">删除</Button>
+                <i-button @click="handlerAdd">添加</i-button>
+                <i-button @click="handlerBatchDel">删除</i-button>
             </div>
         </func-table>
     </div>
@@ -30,11 +30,13 @@
 import loginUtils from '@/utils/loginUtils'
 import FuncTable from '@/components/FuncTable'
 import FuncTableMixin from '@/components/FuncTable/mixin'
+import {Button as iButton} from 'iview'
 
 export default {
   name: 'app',
   components: {
-    FuncTable
+    FuncTable,
+    iButton
   },
   mixins: [FuncTableMixin],
   data () {
@@ -57,7 +59,7 @@ export default {
             width: 120,
             render: (h, {row, column, index}) => {
                 return h('div', [
-                h('Button', {
+                h(iButton, {
                     props: {
                     type: 'text',
                     size: 'small'
@@ -222,7 +224,7 @@ export default {
                 let id = row.id
                 let isActive = row.isActive;
                 return h('div', [
-                    h('Button', {
+                    h(iButton, {
                         props: {
                         type: 'text',
                         size: 'small'
@@ -236,7 +238,7 @@ export default {
                         }
                         }
                     }, '编辑'),
-                    h('Button', {
+                    h(iButton, {
                         props: {
                         type: 'text',
                         size: 'small'
@@ -252,7 +254,7 @@ export default {
                         }
                         }
                     }, isActive == 1 ? '禁用':'启用'),
-                    h('Button', {
+                    h(iButton, {
                         props: {
                         type: 'text',
                         size: 'small'

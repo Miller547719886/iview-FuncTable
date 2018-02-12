@@ -10,20 +10,20 @@
         </slot>
       </div>
       <div class="func-table-refresh f-l ml-5" v-show="refreshable">
-        <Button icon="refresh" @click="refresh">刷新</Button>
+        <i-button icon="refresh" @click="refresh">刷新</i-button>
       </div>
       <form class="func-table-search f-r"
         @keypress.enter.prevent="doSearch(searchInput)" v-if="searchConfig">
         <div class="clearfix">
           <Button-group class="f-r ml-10">
-            <Button
+            <i-button
               icon="ios-search"
               class="f-r"
-              @click.stop="doSearch(searchInput)">查询</Button>
+              @click.stop="doSearch(searchInput)">查询</i-button>
           </Button-group>
           <Button-group class="f-r ml-10">
-            <Input v-model="searchInput" :placeholder="searchConfig.placeholder"
-              :maxlength="searchConfig.maxLength" class="ivu-input-default f-r"></Input>
+            <i-input v-model="searchInput" :placeholder="searchConfig.placeholder"
+              :maxlength="searchConfig.maxLength" class="ivu-input-default f-r"></i-input>
           </Button-group>
         </div>
       </form>
@@ -74,24 +74,11 @@
         </div>
       </div>
       <div class="topPosition spin-outer">
-        <Table stripe ref="table"
+        <i-table stripe ref="table"
           class="f-14"
+          v-bind="$props"
           :columns="filteredColumns"
           :id="id"
-          :size="size"
-          :width="width"
-          :height="height"
-          :stripe="stripe"
-          :border="border"
-          :show-header="showHeader"
-          :highlight-row="highlightRow"
-          :row-class-name="rowClassName"
-          :context="context"
-          :no-data-text="noDataText"
-          :no-filtered-data-text="noFilteredDataText"
-          :data="data"
-          :disabled-hover="disabledHover"
-          :loading="loading"
           @on-current-change="emitCurrentChange"
           @on-select="emitSelect"
           @on-select-cancel="emitSelectCancel"
@@ -103,7 +90,7 @@
           @on-row-dblclick="emitRowDblclick"
           @on-expand="emitExpand"
           >
-        </Table>
+        </i-table>
         <!-- 加载中 -->
         <Spin size="large"
               fix
@@ -151,6 +138,7 @@
   import dom from '@/utils/dom'
   import loginUtils from '@/utils/loginUtils'
   import fetchDataFormat from './fetchDataFormat'
+  import {Table as iTable, Input as iInput, Button as iButton, Icon, Page, Checkbox, CheckboxGroup, ButtonGroup, Modal, Spin} from 'iview'
 
   export default {
     name: 'FuncTable',
@@ -159,69 +147,31 @@
       event: 'on-fetch-config-change'
     },
     components: {
-      CTransfer
+      CTransfer,
+      iTable,
+      iInput,
+      iButton,
+      Icon,
+      Page,
+      Checkbox,
+      CheckboxGroup,
+      ButtonGroup,
+      Modal,
+      Spin
     },
     props: {
-      data: {
-        type: Array,
-        default () {
-          return []
-        }
-      },
+      ...iTable.props,
       columns: {
         type: Array,
         default () {
           return []
         }
       },
-      size: {
-        validator (value) {
-          return window.util.oneOf(value, ['small', 'large', 'default'])
-        }
-      },
-      width: {
-        type: [Number, String]
-      },
-      height: {
-        type: [Number, String]
-      },
-      stripe: {
-        type: Boolean,
-        default: false
-      },
-      border: {
-        type: Boolean,
-        default: false
-      },
-      showHeader: {
-        type: Boolean,
-        default: true
-      },
-      highlightRow: {
-        type: Boolean,
-        default: false
-      },
-      rowClassName: {
-        type: Function,
-        default () {
-          return ''
-        }
-      },
-      context: {
-        type: Object
-      },
-      noDataText: {
-        type: String
-      },
-      noFilteredDataText: {
-        type: String
-      },
-      disabledHover: {
-        type: Boolean
-      },
-      loading: {
-        type: Boolean,
-        default: false
+      /* 表格id(本地存储用)|选填 */
+      id: {
+        type: String,
+        // required: false,
+        default: ''
       },
       // 勾选的id
       ids: {
@@ -277,12 +227,6 @@
         type: Object,
         // required: true,
         default: () => ({})
-      },
-      /* 表格id(本地存储用)|选填 */
-      id: {
-        type: String,
-        // required: false,
-        default: ''
       }
     },
     data () {
@@ -837,7 +781,7 @@
       doSearch (val) {
         if (this.pageConfig && !this.isFrontPage) { // 请求查找
           this.resetPage()
-          this.updateSearchKey() 
+          this.updateSearchKey()
         } else { // 前端筛选（包括分页不分页
           if (this.isFrontPage && this.page !== 1) {
             this.resetPage()
