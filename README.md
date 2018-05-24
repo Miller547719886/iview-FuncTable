@@ -113,7 +113,6 @@ export default {
       //   method: 'post', // 声明请求方式
       //   postData: {}, // post请求载荷
       //   url: '/account', // 请求url。
-      //   params: {}, // 参数。（不需要配置page与size）
       //   callback: (data) => { // 请求成功回调。（请务必用箭头函数修正this指向！）
       //     // data.content.length = 0
       //     this.msg = '请求成功！'

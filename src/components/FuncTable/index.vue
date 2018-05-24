@@ -132,7 +132,7 @@
    * 2. transfer里的key定义规则：columes中存在key则为key，不存在则为type。
    * 3. 每个table都需要用id来标记，用途是获取本地存储对应的配置对象。
    */
-  import CTransfer from '@/components/Transfer/Index'
+  import CTransfer from '@/components/Transfer/index'
   import configUtils from './configUtils'
   import common from '@/utils/common'
   import dom from '@/utils/dom'
