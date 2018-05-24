@@ -95,10 +95,11 @@ export default {
     }
   },
   mounted () {
-    this.load() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
+    this.loadFT() // 初始化加载,在created钩子函数里需要在$nextTick回调内执行。
   },
   methods: {
-    load () { // 通过改变http请求的配置(url,参数)自动触发组件内请求事件。
+    loadFT () { // 通过改变http请求的配置(url,参数)自动触发组件内请求事件。
+      /* get方法 */
       this.fetchConfig = { // 请按照此格式配置！
         url: '/account', // 请求url。
         params: {}, // 参数。（不需要配置page与size）
@@ -107,6 +108,17 @@ export default {
           this.msg = '请求成功！'
         }
       }
+      /* post方法 */
+      // this.fetchConfig = { // 请按照此格式配置！
+      //   method: 'post', // 声明请求方式
+      //   postData: {}, // post请求载荷
+      //   url: '/account', // 请求url。
+      //   params: {}, // 参数。（不需要配置page与size）
+      //   callback: (data) => { // 请求成功回调。（请务必用箭头函数修正this指向！）
+      //     // data.content.length = 0
+      //     this.msg = '请求成功！'
+      //   }
+      // }
     }
   }
 }

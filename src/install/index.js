@@ -1,5 +1,5 @@
 import FuncTable from '@/components/FuncTable/index.vue' // 导入组件
-import CONST from '@/utils/CONST.js'
+import CONST from '@/utils/CONST'
 
 const FuncTableInstall = {
     install(Vue, options) {

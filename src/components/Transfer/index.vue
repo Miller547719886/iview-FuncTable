@@ -22,12 +22,12 @@
   import {Transfer} from 'iview'
   export default {
     name: 'CTransfer',
-    components: {
-      Transfer
-    },
     model: {
       prop: 'targetKeys',
       event: 'on-target-keys-change'
+    },
+    components: {
+      Transfer
     },
     props: {
       data: {

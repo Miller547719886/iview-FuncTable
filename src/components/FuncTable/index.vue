@@ -305,7 +305,10 @@
       },
       isFrontPage () { // 前端分页
         return (this.pageConfig.mode === 'front')
-      }
+      },
+      postData () {
+        return this.fetchConfig.postData || null
+      },
     },
     watch: {
       columns: {
@@ -328,18 +331,11 @@
         VMPage.currentPage = this.forceUpdateSign.page
         VMPage.$forceUpdate()
       },
-      filteredColumns (v) {
-        /* 处理宽度太少不够填满整个表格的情况 */
-        if (!window._.some(v, ['fixWidth', true])) {
-          let lastNotFixedIndex = v.findIndex((item) => {
-            return item.fixed && item.fixed === 'right'
-          })
-          v.splice(lastNotFixedIndex, 0, {
-            fixWidth: true, // 该column为了修正width而存在
-            key: window.Null,
-            title: ' ' // 不填充为空格则会自动填充#
-          })
-        }
+      filteredColumns: {
+        handler (v) {
+          this.fixWidth(v)
+        },
+        deep: true
       },
       /* 监听checkbox变化 */
       tableColumnsChecked (newV, oldV) {
@@ -381,6 +377,7 @@
     },
     created () {
       // 获取当前表格对应的全部columns与targetKeys
+      this.fixWidth(this.filteredColumns)
     },
     mounted () {
       if (this.isCheckMode || this.isTransferMode) {
@@ -388,6 +385,31 @@
       }
     },
     methods: {
+      fixWidth (filteredColumns) {
+        /* 处理宽度太少不够填满整个表格的情况 */
+        const lastIndex = filteredColumns.length
+        if (!window._.some(filteredColumns, ['fixWidth', true])) {
+          let lastNotFixedIndex
+
+          if (window._.some(filteredColumns, ['fixed', 'right'])) {
+            lastNotFixedIndex = filteredColumns.findIndex((item) => {
+              return item.fixed && item.fixed === 'right'
+            })
+          } else {
+            lastNotFixedIndex = filteredColumns.length
+          }
+
+          if (lastNotFixedIndex === lastIndex) {
+            lastNotFixedIndex -= 1
+          }
+
+          filteredColumns.splice(lastNotFixedIndex, 0, {
+            fixWidth: true, // 该column为了修正width而存在
+            key: window.Null,
+            title: ' ' // 不填充为空格则会自动填充#
+          })
+        }
+      },
       /* ----- 分页相关 ----- */
       setPagePosition (pagePosition) {
         let _style
@@ -544,26 +566,48 @@
       },
       /* 不分页请求 */
       fetchWithoutPage (paramsStr) {
-        this.$http.get(this.url + paramsStr).then((data) => {
-          this.refreshTable = false
-          this.deletePageAndSizeInConfig()
-          let cdata = data
-          let res = window._.get(cdata, fetchDataFormat.data, cdata)
-          this.updateDataBeforeFilter(res) // 保存筛选前数据
-          if (this.fetchConfig.callback) {
-            this.fetchConfig.callback(data) // 回调(由于后端返回的数据结构可能不按照table要求的数据格式返回，此处可能会洗数据，所以回调在部分操作之后执行以实现覆盖。)
-          }
-          if (this.isFrontPage) {
-            this.total = this.dataBeforeFilter.length
-            this.filterDataByPage()
-          } else {
-            this.$emit('on-data-change', res) // 触发父组件data变化
-          }
-        }).catch((error) => {
-          this.$Message.error(`请求错误；错误信息：${error}`)
-        }).then(() => {
-          this.spin = false // 关闭加载中
-        })
+        if (this.fetchConfig.method === 'post') {
+          this.$http.post(this.url, this.postData).then((data) => {
+            this.refreshTable = false
+            let cdata = data
+            let res = window._.get(cdata, fetchDataFormat.data, cdata)
+            this.updateDataBeforeFilter(res) // 保存筛选前数据
+            if (this.fetchConfig.callback) {
+              this.fetchConfig.callback(data) // 回调(由于后端返回的数据结构可能不按照table要求的数据格式返回，此处可能会洗数据，所以回调在部分操作之后执行以实现覆盖。)
+            }
+            if (this.isFrontPage) {
+              this.total = this.dataBeforeFilter.length
+              this.filterDataByPage()
+            } else {
+              this.$emit('on-data-change', res) // 触发父组件data变化
+            }
+          }).catch((error) => {
+            console.log(error)
+            this.$Message.error(`请求错误；错误信息：${error}`)
+          }).then(() => {
+            this.spin = false // 关闭加载中
+          })
+        } else {
+          this.$http.get(this.url + paramsStr).then((data) => {
+            this.refreshTable = false
+            let cdata = data
+            let res = window._.get(cdata, fetchDataFormat.data, cdata)
+            this.updateDataBeforeFilter(res) // 保存筛选前数据
+            if (this.fetchConfig.callback) {
+              this.fetchConfig.callback(data) // 回调(由于后端返回的数据结构可能不按照table要求的数据格式返回，此处可能会洗数据，所以回调在部分操作之后执行以实现覆盖。)
+            }
+            if (this.isFrontPage) {
+              this.total = this.dataBeforeFilter.length
+              this.filterDataByPage()
+            } else {
+              this.$emit('on-data-change', res) // 触发父组件data变化
+            }
+          }).catch((error) => {
+            this.$Message.error(`请求错误；错误信息：${error}`)
+          }).then(() => {
+            this.spin = false // 关闭加载中
+          })
+        }
       },
       /* 同步筛选前data与请求返回的data */
       updateDataBeforeFilter (data) {
@@ -820,6 +864,10 @@
   .func-table {
     .func-table-page {
       padding-bottom: 150px;
+    }
+
+    .func-table-batch-operation button {
+      margin-right:3px;
     }
     // .topPosition {
     //   position: relative;
